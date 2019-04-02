@@ -250,6 +250,12 @@
     <None Include="src\ASF\xmega\utils\compiler.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\DRIVERS\altitude.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\altitude.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\DRIVERS\pressure.c">
       <SubType>compile</SubType>
     </Compile>

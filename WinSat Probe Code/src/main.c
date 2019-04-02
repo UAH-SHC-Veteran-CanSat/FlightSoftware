@@ -39,7 +39,7 @@ int main (void)
 	/* Insert application code here, after the board has been initialized. */
 	uint8_t state = 0;
 	uint8_t teamID = 2591;
-	uint32_t pressure = 0;
+	uint32_t pressure = getPressure();
 	uint32_t initialPressure = getPressure();
 	int32_t initialAltitude = getAltitude(initialPressure,pressure);
 	int32_t maxAltitude = 0;
