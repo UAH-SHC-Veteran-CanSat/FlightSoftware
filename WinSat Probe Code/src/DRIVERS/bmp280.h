@@ -1,14 +1,3 @@
-/*
- * pressure.h
- *
- * Created: 3/27/2019 2:54:01 PM
- *  Author: Mason
- */ 
-
-
-#ifndef PRESSURE_H_
-#define PRESSURE_H_
-
 /**
  * Copyright (C) 2019 Bosch Sensortec GmbH
  *
@@ -317,8 +306,3 @@ int8_t bmp280_selftest(struct bmp280_dev *dev);
 #endif /* End of CPP guard */
 
 #endif /* _BMP280_H_ */
-
-
-
-
-#endif /* PRESSURE_H_ */

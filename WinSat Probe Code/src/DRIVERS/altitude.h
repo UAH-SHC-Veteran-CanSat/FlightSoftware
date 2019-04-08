@@ -9,7 +9,7 @@
 #ifndef ALTITUDE_H_
 #define ALTITUDE_H_
 
-int32_t getAltitude(uint32_t initial, uint32_t pressure);
+int32_t getAltitude(uint32_t initial, uint32_t pressure, int32_t temperature);
 
 
 

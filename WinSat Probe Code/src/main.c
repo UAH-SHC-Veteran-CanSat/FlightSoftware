@@ -29,17 +29,42 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 #include <asf.h>
+#include "altitude.h"
+#include "pressure.h"
+#include "temperature.h"
 
 int main (void)
 {
 	/* Insert system clock initialization code here (sysclk_init()). */
 
-	board_init();
+	sysclk_init();
+	//sysclk_enable_peripheral_clock(&TCF0);
+	sysclk_enable_peripheral_clock(&TCD0);
 
+
+	sysclk_enable_module(SYSCLK_PORT_C, PR_SPI_bm);
+	sysclk_enable_module(SYSCLK_PORT_C,SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_E,SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_F, SYSCLK_HIRES);
+	
+	sysclk_enable_peripheral_clock(&TCE0);
+	sysclk_enable_peripheral_clock(&TCC0);
+
+	sysclk_enable_peripheral_clock(&USARTC0);
+	sysclk_enable_peripheral_clock(&USARTD0);
+	sysclk_enable_peripheral_clock(&USARTD1);
+	
+	sysclk_enable_peripheral_clock(&SPIC);
+	
+	sysclk_enable_peripheral_clock(&ADCA);
+	adc_init();
+	
 	/* Insert application code here, after the board has been initialized. */
 	uint8_t state = 0;
 	uint8_t teamID = 2591;
 	uint32_t pressure = getPressure();
+	int32_t temperature = getTemperature();
 	uint32_t initialPressure = getPressure();
 	int32_t initialAltitude = getAltitude(initialPressure,pressure);
 	int32_t maxAltitude = 0;
@@ -51,7 +76,7 @@ int main (void)
 	
 	while (1){
 		pressure = getPressure();
-		altitude = getAltitude(initialPressure,pressure);
+		altitude = getAltitude(initialPressure, pressure, temperature);
 		velocity = getVelocity();
 		smooth_altitude = (int32_t)(smoothing_factor * altitude + (1-smoothing_factor)*smooth_altitude);
 		
