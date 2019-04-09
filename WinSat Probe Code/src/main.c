@@ -42,10 +42,10 @@ int main (void)
 	sysclk_enable_peripheral_clock(&TCD0);
 
 
-	sysclk_enable_module(SYSCLK_PORT_C, PR_SPI_bm);
-	sysclk_enable_module(SYSCLK_PORT_C,SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_C, PR_TWI_bm);
+	sysclk_enable_module(SYSCLK_PORT_C, SYSCLK_HIRES);
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES);
-	sysclk_enable_module(SYSCLK_PORT_E,SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_E, SYSCLK_HIRES);
 	sysclk_enable_module(SYSCLK_PORT_F, SYSCLK_HIRES);
 	
 	sysclk_enable_peripheral_clock(&TCE0);
@@ -55,7 +55,7 @@ int main (void)
 	sysclk_enable_peripheral_clock(&USARTD0);
 	sysclk_enable_peripheral_clock(&USARTD1);
 	
-	sysclk_enable_peripheral_clock(&SPIC);
+	sysclk_enable_peripheral_clock(&TWIC);
 	
 	sysclk_enable_peripheral_clock(&ADCA);
 	adc_init();
@@ -77,7 +77,7 @@ int main (void)
 	while (1){
 		pressure = getPressure();
 		altitude = getAltitude(initialPressure, pressure, temperature);
-		velocity = getVelocity();
+		//velocity = getVelocity();
 		smooth_altitude = (int32_t)(smoothing_factor * altitude + (1-smoothing_factor)*smooth_altitude);
 		
 		//teamID,my_time,packetCount,altitude,pressure,temperature,voltage,GPSTime,GPSLat,GPSLong,GPSAlt,GPSSats,smooth_x,smooth_y,smooth_z,state

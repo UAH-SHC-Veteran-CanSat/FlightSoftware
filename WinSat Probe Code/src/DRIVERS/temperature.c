@@ -10,8 +10,8 @@
 
 
 void adc_init(void){	//This is for PA6... mostly
-	PORTA.DIRCLR = 0b01000000;
-	PORTA.DIR = 0b10111111;
+	PORTA.DIRCLR = 0b00100000;
+	PORTA.DIR = 0b11011111;
 	ADCA.CTRLA = 0b00000001;
 	ADCA.CTRLB = 0b00000000;
 	ADCA.REFCTRL = 0b00010000;
@@ -24,10 +24,7 @@ void adc_init(void){	//This is for PA6... mostly
 
 
 float getVoltage(void){
-	ADCA.CH0.CTRL  |= 0b10000000;
-	//
-		
-	
+	ADCA.CH0.CTRL  |= 0b10000000;	
 	("one");
 	while(ADCA.CH0.INTFLAGS == 0);
 	//printf("two");

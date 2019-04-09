@@ -99,6 +99,10 @@
 // From module: System Clock Control - XMEGA A1U/A3U/A3BU/A4U/B/C implementation
 #include <sysclk.h>
 
+// From module: TWI - Two-wire Master and Slave Interface
+#include <twim.h>
+#include <twis.h>
+
 // From module: USART - Universal Synchronous/Asynchronous Receiver/Transmitter
 #include <usart.h>
 
