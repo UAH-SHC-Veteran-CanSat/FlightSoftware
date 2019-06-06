@@ -6,7 +6,7 @@
  */ 
 #include <asf.h>
 #include <math.h>
-#include "thermistor.h"
+#include "temperature.h"
 
 
 void adc_init(void){	//This is for PA6... mostly

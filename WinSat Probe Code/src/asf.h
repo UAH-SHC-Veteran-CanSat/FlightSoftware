@@ -62,6 +62,9 @@
 // From module: Common build items for user board support templates
 #include <user_board.h>
 
+// From module: Delay routines
+#include <delay.h>
+
 // From module: GPIO - General purpose Input/Output
 #include <gpio.h>
 
@@ -105,6 +108,9 @@
 
 // From module: USART - Universal Synchronous/Asynchronous Receiver/Transmitter
 #include <usart.h>
+
+// From module: WDT - Watchdog Timer
+#include <wdt.h>
 
 // From module: XMEGA compiler driver
 #include <compiler.h>

@@ -779,6 +779,10 @@ static int8_t get_calib_param(struct bmp280_dev *dev)
     if (rslt == BMP280_OK)
     {
         rslt = bmp280_get_regs(BMP280_DIG_T1_LSB_ADDR, temp, BMP280_CALIB_DATA_SIZE, dev);
+		dev->delay_ms(1);
+		rslt = bmp280_get_regs(BMP280_DIG_T1_LSB_ADDR, temp, BMP280_CALIB_DATA_SIZE, dev);
+
+		
         if (rslt == BMP280_OK)
         {
             dev->calib_param.dig_t1 =

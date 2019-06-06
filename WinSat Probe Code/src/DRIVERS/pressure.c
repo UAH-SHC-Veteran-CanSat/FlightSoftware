@@ -5,9 +5,10 @@
  *  Author: Mason
  */ 
 
+#include <asf.h>
 #include <stdio.h>
-#include "bmp280.h"
-#include "bmp280_defs.h"
+#include "DRIVERS/bmp280.h"
+#include "DRIVERS/bmp280_defs.h"
 
 int32_t t_fine;
 int32_t getTemp(int32_t adcT) {
