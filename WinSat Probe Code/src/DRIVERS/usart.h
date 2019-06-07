@@ -18,8 +18,10 @@
 #define USART_OPENLOG USARTC0
 
 //Whichever device is uncommented below will respond to printf, the other will work with log_printf
-#define XBEE_PRIMARY
-//#define OPENLOG_PRIMARY
+//#define XBEE_PRIMARY
+#define OPENLOG_PRIMARY
+
+#define SECONDARY_BUFFER_SIZE 255
 
 //These #defines are the "settings" for the USART communication
 //The receiving end, computer or radio, must have the same settings or it won't work

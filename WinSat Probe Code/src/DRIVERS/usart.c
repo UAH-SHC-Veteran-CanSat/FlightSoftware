@@ -6,10 +6,6 @@
  */ 
 #include "usart.h"
 
-char* trimLeft(char*);
-char* trimRight(char*);
-char* trim(char*);
-
 
 void UART_Comms_Init(void){
 	
@@ -58,10 +54,10 @@ void UART_Comms_Init(void){
 void log_printf(const char* format, ...)
 {
 	va_list vargs;
-	char buffer[255];
+	char buffer[SECONDARY_BUFFER_SIZE];
 	
-	if(strlen(format) > 255) {
-		printf("logged format string is too long (>255 chars)\n");
+	if(strlen(format) > SECONDARY_BUFFER_SIZE) {
+		printf("logged format string is too long (>%i chars)\n", SECONDARY_BUFFER_SIZE);
 	}
 	
 	va_start(vargs, format);
@@ -81,30 +77,4 @@ void log_printf(const char* format, ...)
 
 #endif
 	
-}
-
-char* trimLeft(char*s) {
-	while(isspace(*s)) {
-		s++;
-	}
-	return s;
-}
-
-char* trimRight(char* s) {
-	//Safeguard against empty strings
-	int len = strlen(s);
-	if(len == 0) {
-		return s;
-	}
-	//Actual algorithm
-	char* pos = s + len - 1;
-	while(pos >= s && isspace(*pos)) {
-		*pos = '\0';
-		pos--;
-	}
-	return s;
-}
-
-char* trim(char* s) {
-	return trimRight(trimLeft(s));
 }
