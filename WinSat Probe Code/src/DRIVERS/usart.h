@@ -13,9 +13,15 @@
 #include <string.h>
 #include <ctype.h>
 
+#define USART_XBEE USARTD1
+#define USART_XBEE_RXC_vect USARTD1_RXC_vect
 
-#define USART_XBEE USARTD0
 #define USART_OPENLOG USARTC0
+#define USART_OPENLOG_RXC_vect USARTC0_RXC_vect
+
+#define USART_GPS USARTC1
+#define USART_GPS_RXC_vect USARTC1_RXC_vect
+
 
 //Whichever device is uncommented below will respond to printf, the other will work with log_printf
 //#define XBEE_PRIMARY

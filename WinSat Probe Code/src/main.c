@@ -252,6 +252,8 @@ int main (void)
 	/* Insert system clock initialization code here (sysclk_init()). */
 
 	sysclk_init();
+	
+	pmic_init();
 
 	sysclk_enable_module(SYSCLK_PORT_C, PR_TWI_bm);
 	sysclk_enable_module(SYSCLK_PORT_C, SYSCLK_HIRES);
@@ -269,9 +271,14 @@ int main (void)
 	
 	UART_Comms_Init();
 	
-	printf("\n\n\nUSART INIT\n");
-	log_printf("\n\n\nSECONDARY COMMS INIT\n");
+	printf("\n\n\nUSART INIT\n"); //This prints to xbee
+	log_printf("\n\n\nSECONDARY COMMS INIT\n"); //This prints to openlog
 	log_printf("Testing string formatting: %u, %u",69, 420);
+	
+	
+	irq_initialize_vectors();
+	cpu_irq_enable();
+	
 	
 	sysclk_enable_peripheral_clock(&TWIC);
 	
@@ -281,11 +288,7 @@ int main (void)
 	wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_1KCLK);
 	//wdt_enable();
 	
-	pmic_init();
-	irq_initialize_vectors();
-	cpu_irq_enable();
-	
-	printf("PMIC Initialized\n");
+
 	
 
 	TCE0.CTRLA = 0b00000110;
@@ -295,213 +298,216 @@ int main (void)
 	wdt_reset();
 
 
-	printf("Starting BNO055 Init\n");
-	twi_options_t m_options = {
-		.speed = 400000,
-		.speed_reg = TWI_BAUD(32000000, 400000),
-	};
-	
-	sysclk_enable_peripheral_clock(&TWIC);
-	twi_master_init(&TWIC, &m_options);
-	twi_master_enable(&TWIC);
-
-	bno055.bus_write = BNO055_I2C_bus_write;
-	bno055.bus_read = BNO055_I2C_bus_read;
-	bno055.delay_msec = BNO055_delay_msek;
-	bno055.dev_addr = BNO055_I2C_ADDR2;
-
-	
-	int8_t initStatus = bno055_init(&bno055);
-	printf("Init Status: %i  (0 is good)\n", initStatus);
-	bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
-	//bno055_set_clk_src(0x01);
-	int8_t status = bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
-	uint8_t operation_mode = 0;
-	bno055_get_operation_mode(&operation_mode);
-	printf("Operation mode is %u, should be %u\nWrite status: %i  (0 is good)\n",operation_mode,BNO055_OPERATION_MODE_NDOF,status);
-	
-	wdt_reset();
-	
-	printf("IMU Initialized\n");
-	
-	printf("Starting BMP280 Init\n");
-	
-	bmp.read = i2c_reg_read;
-	bmp.write = i2c_reg_write;
-	bmp.delay_ms = BNO055_delay_msek;
-	
-	bmp.dev_id = BMP280_I2C_ADDR_PRIM;
-	bmp.intf = BMP280_I2C_INTF;
-	
-	int8_t rslt;
-	
-	delay_ms(500);
-	
-	rslt = bmp280_init(&bmp);
-	print_rslt(" bmp280_init status", rslt);
-	
-	rslt = bmp280_get_config(&conf, &bmp);
-	print_rslt(" bmp280_get_config status", rslt);
-	
-	/* configuring the temperature oversampling, filter coefficient and output data rate */
-	/* Overwrite the desired settings */
-	conf.filter = BMP280_FILTER_COEFF_2;
-
-	/* Pressure oversampling set at 4x */
-	conf.os_pres = BMP280_OS_8X;
-
-	/* Setting the output data rate as 1HZ(1000ms) */
-	conf.odr = BMP280_ODR_1000_MS;
-	rslt = bmp280_set_config(&conf, &bmp);
-	print_rslt(" bmp280_set_config status", rslt);
-
-	/* Always set the power mode after setting the configuration */
-	rslt = bmp280_set_power_mode(BMP280_NORMAL_MODE, &bmp);
-	print_rslt(" bmp280_set_power_mode status", rslt);
+// 	printf("Starting BNO055 Init\n");
+// 	twi_options_t m_options = {
+// 		.speed = 400000,
+// 		.speed_reg = TWI_BAUD(32000000, 400000),
+// 	};
+// 	
+// 	sysclk_enable_peripheral_clock(&TWIC);
+// 	twi_master_init(&TWIC, &m_options);
+// 	twi_master_enable(&TWIC);
+// 
+// 	bno055.bus_write = BNO055_I2C_bus_write;
+// 	bno055.bus_read = BNO055_I2C_bus_read;
+// 	bno055.delay_msec = BNO055_delay_msek;
+// 	bno055.dev_addr = BNO055_I2C_ADDR2;
+// 
+// 	
+// 	int8_t initStatus = bno055_init(&bno055);
+// 	printf("Init Status: %i  (0 is good)\n", initStatus);
+// 	bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
+// 	//bno055_set_clk_src(0x01);
+// 	int8_t status = bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
+// 	uint8_t operation_mode = 0;
+// 	bno055_get_operation_mode(&operation_mode);
+// 	printf("Operation mode is %u, should be %u\nWrite status: %i  (0 is good)\n",operation_mode,BNO055_OPERATION_MODE_NDOF,status);
+// 	
+// 	wdt_reset();
+// 	
+// 	printf("IMU Initialized\n");
+// 	
+// 	printf("Starting BMP280 Init\n");
+// 	
+// 	bmp.read = i2c_reg_read;
+// 	bmp.write = i2c_reg_write;
+// 	bmp.delay_ms = BNO055_delay_msek;
+// 	
+// 	bmp.dev_id = BMP280_I2C_ADDR_PRIM;
+// 	bmp.intf = BMP280_I2C_INTF;
+// 	
+// 	int8_t rslt;
+// 	
+// 	delay_ms(500);
+// 	
+// 	rslt = bmp280_init(&bmp);
+// 	print_rslt(" bmp280_init status", rslt);
+// 	
+// 	rslt = bmp280_get_config(&conf, &bmp);
+// 	print_rslt(" bmp280_get_config status", rslt);
+// 	
+// 	/* configuring the temperature oversampling, filter coefficient and output data rate */
+// 	/* Overwrite the desired settings */
+// 	conf.filter = BMP280_FILTER_COEFF_2;
+// 
+// 	/* Pressure oversampling set at 4x */
+// 	conf.os_pres = BMP280_OS_8X;
+// 
+// 	/* Setting the output data rate as 1HZ(1000ms) */
+// 	conf.odr = BMP280_ODR_1000_MS;
+// 	rslt = bmp280_set_config(&conf, &bmp);
+// 	print_rslt(" bmp280_set_config status", rslt);
+// 
+// 	/* Always set the power mode after setting the configuration */
+// 	rslt = bmp280_set_power_mode(BMP280_NORMAL_MODE, &bmp);
+// 	print_rslt(" bmp280_set_power_mode status", rslt);
 
 	printf("\nInitialization Complete!\n\n\n");
 	
-	delay_ms(5000);
+	delay_ms(500);
 	
 	
-	v3d position;
-	position.x = 0;
-	position.y = 0;
-	position.z = 0;
-	v3d velocity;
-	velocity.x = 0;
-	velocity.y = 0;
-	velocity.z = 0;
-	v3d acceleration;
-	
-	qf16 orientation;
-
-	uint32_t last_time = 0;
-	
-	/* Insert application code here, after the board has been initialized. */
-	uint8_t state = 0;
-	uint8_t teamID = 2591;
-	uint32_t initialPressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
-	uint32_t pressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
-	int32_t temperature = getTemperature();
-	int32_t initialAltitude = getAltitude(initialPressure,pressure,temperature);
-	int32_t maxAltitude = 0;
-	int32_t altitude = 0;
-	//int32_t velocity = 0;
-	int32_t smooth_altitude = 0;
-	double smoothing_factor = 0.50;
-	int32_t altitudeArray[10];
+// 	v3d position;
+// 	position.x = 0;
+// 	position.y = 0;
+// 	position.z = 0;
+// 	v3d velocity;
+// 	velocity.x = 0;
+// 	velocity.y = 0;
+// 	velocity.z = 0;
+// 	v3d acceleration;
+// 	
+// 	qf16 orientation;
+// 
+// 	uint32_t last_time = 0;
+// 	
+// 	/* Insert application code here, after the board has been initialized. */
+// 	uint8_t state = 0;
+// 	uint8_t teamID = 2591;
+// 	uint32_t initialPressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
+// 	uint32_t pressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
+// 	int32_t temperature = getTemperature();
+// 	int32_t initialAltitude = getAltitude(initialPressure,pressure,temperature);
+// 	int32_t maxAltitude = 0;
+// 	int32_t altitude = 0;
+// 	//int32_t velocity = 0;
+// 	int32_t smooth_altitude = 0;
+// 	double smoothing_factor = 0.50;
+// 	int32_t altitudeArray[10];
 	
 	
 	while (1){
-		struct bno055_linear_accel_t bno055_linear_accel;
-		bno055_read_linear_accel_xyz(&bno055_linear_accel);
-		acceleration.x = fix16_from_float((float)bno055_linear_accel.x / 100.0);
-		acceleration.y = fix16_from_float((float)bno055_linear_accel.y / 100.0);
-		acceleration.z = fix16_from_float((float)bno055_linear_accel.z / 100.0);
-
-		struct bno055_quaternion_t bno055_quaternion;
-		bno055_read_quaternion_wxyz(&bno055_quaternion);
-		orientation.a = fix16_from_int(bno055_quaternion.w);
-		orientation.b = fix16_from_int(bno055_quaternion.x);
-		orientation.c = fix16_from_int(bno055_quaternion.y);
-		orientation.d = fix16_from_int(bno055_quaternion.z);
-
-		// Auto reset if BNO055 stops working
-		// 		if(bno055_quaternion.w == 0 && bno055_quaternion.x == 0 && bno055_quaternion.y == 0 && bno055_quaternion.z == 0 && bno055_linear_accel.x == 0 && bno055_linear_accel.y == 0 && bno055_linear_accel.z == 0)
-		// 		{
-		// 			int8_t initStatus = bno055_init(&bno055);
-		// 			printf("Init Status: %i  (0 is good)\n", initStatus);
-		// 			bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
-		// 			//bno055_set_clk_src(0x01);
-		// 			int8_t status = bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
-		// 			uint8_t operation_mode = 0;
-		// 			bno055_get_operation_mode(&operation_mode);
-		// 			printf("Operation mode is %u, should be %u\nWrite status: %i  (0 is good)\n",operation_mode,BNO055_OPERATION_MODE_NDOF,status);
-		//
-		// 			printf("IMU Initialized\n");
-		// 			delay_ms(500);
-		// 		}
 		
-		uint8_t accel_calib = 0;
-		uint8_t gyro_calib = 0;
-		uint8_t mag_calib = 0;
-		uint8_t sys_calib = 0;
-		bno055_get_accel_calib_stat(&accel_calib);
-		bno055_get_gyro_calib_stat(&gyro_calib);
-		bno055_get_mag_calib_stat(&mag_calib);
-		bno055_get_sys_calib_stat(&sys_calib);
-		
-		qf16_normalize(&orientation, &orientation);
-		qf16_conj(&orientation, &orientation); //Inverts quaternion (inverse of unit quaternion is the conjugate)
-
-
-		
-		printf("%i, %i, %i, %i, %i, %i, %i\n",
-		bno055_quaternion.w, bno055_quaternion.x, bno055_quaternion.y, bno055_quaternion.z, bno055_linear_accel.x, bno055_linear_accel.y, bno055_linear_accel.z);
-		
-		if (accel_calib > 1 && gyro_calib > 1 && mag_calib > 1 && sys_calib > 1)
-		{
-			
-		}
-		else
-		{
-			printf("Calib stat: %u %u %u %u\n",accel_calib, gyro_calib, mag_calib, sys_calib);
-		}
-		
-		// 				printf("%lu,",cycles);
-		// 				printf("%li,%lu,%lu,",pressure,temperature);
-		// 				//printf("%.3f,%.3f,%.3f,%.3f,",yaw_to_heading(imu_data.yaw),imu_data.yaw,imu_data.roll,imu_data.pitch);
-		// 				//printf("%.3f,%i,",yawAngle,pitchAngle);
-		// 				printf("%.5f,%.5f,",GPSdata.latdecimal,GPSdata.londecimal);
-		
-		bmp280_get_uncomp_data(&ucomp_data, &bmp);
-		bmp280_get_comp_pres_32bit(&pres32, ucomp_data.uncomp_press, &bmp);
-		bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
-		bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
-		
-		print_rslt("get_uncomp_data",rslt);
-		printf("%lu\n",pres32);
-		
-		pressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
-		altitude = getAltitude(initialPressure, pressure, temperature);
-		//velocity = getVelocity();
-		smooth_altitude = (int32_t)(smoothing_factor * altitude + (1-smoothing_factor)*smooth_altitude);
-		
-		//Velocity Tentative Idea
-		altitudeArray[0] = smooth_altitude;
-		for (int n = 1; n < 9; n++){
-			altitudeArray[n] = altitudeArray[n-1];
-		}
-		
-		//teamID,my_time,packetCount,altitude,pressure,temperature,voltage,GPSTime,GPSLat,GPSLong,GPSAlt,GPSSats,smooth_x,smooth_y,smooth_z,state
-		
-		if (state == 0){
-			printf("Flight State 0");
-			if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= 0)){ //Work on Velocity later, this will work for now
-				state = 1;
-			}
-			if (smooth_altitude > maxAltitude) {
-				maxAltitude = smooth_altitude;
-			}
-		}
-		if (state == 1){
-			printf("Flight State 1");
-			if (smooth_altitude-initialAltitude<=450){
-				state = 2;
-			}
-		}
-		if (state == 2){
-			printf("Flight State 2");
-			if ((smooth_altitude - initialAltitude <= 50) /*&& (velocity<=1)*/){
-				state = 3;
-			}
-		}
-		if (state == 3){
-			printf("Flight State 3");
-			//Buzzer or something
-		}
-	}
+		printf("hi\n");
+		delay_ms(1000);
+// 		struct bno055_linear_accel_t bno055_linear_accel;
+// 		bno055_read_linear_accel_xyz(&bno055_linear_accel);
+// 		acceleration.x = fix16_from_float((float)bno055_linear_accel.x / 100.0);
+// 		acceleration.y = fix16_from_float((float)bno055_linear_accel.y / 100.0);
+// 		acceleration.z = fix16_from_float((float)bno055_linear_accel.z / 100.0);
+// 
+// 		struct bno055_quaternion_t bno055_quaternion;
+// 		bno055_read_quaternion_wxyz(&bno055_quaternion);
+// 		orientation.a = fix16_from_int(bno055_quaternion.w);
+// 		orientation.b = fix16_from_int(bno055_quaternion.x);
+// 		orientation.c = fix16_from_int(bno055_quaternion.y);
+// 		orientation.d = fix16_from_int(bno055_quaternion.z);
+// 
+// 		// Auto reset if BNO055 stops working
+// 		// 		if(bno055_quaternion.w == 0 && bno055_quaternion.x == 0 && bno055_quaternion.y == 0 && bno055_quaternion.z == 0 && bno055_linear_accel.x == 0 && bno055_linear_accel.y == 0 && bno055_linear_accel.z == 0)
+// 		// 		{
+// 		// 			int8_t initStatus = bno055_init(&bno055);
+// 		// 			printf("Init Status: %i  (0 is good)\n", initStatus);
+// 		// 			bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
+// 		// 			//bno055_set_clk_src(0x01);
+// 		// 			int8_t status = bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
+// 		// 			uint8_t operation_mode = 0;
+// 		// 			bno055_get_operation_mode(&operation_mode);
+// 		// 			printf("Operation mode is %u, should be %u\nWrite status: %i  (0 is good)\n",operation_mode,BNO055_OPERATION_MODE_NDOF,status);
+// 		//
+// 		// 			printf("IMU Initialized\n");
+// 		// 			delay_ms(500);
+// 		// 		}
+// 		
+// 		uint8_t accel_calib = 0;
+// 		uint8_t gyro_calib = 0;
+// 		uint8_t mag_calib = 0;
+// 		uint8_t sys_calib = 0;
+// 		bno055_get_accel_calib_stat(&accel_calib);
+// 		bno055_get_gyro_calib_stat(&gyro_calib);
+// 		bno055_get_mag_calib_stat(&mag_calib);
+// 		bno055_get_sys_calib_stat(&sys_calib);
+// 		
+// 		qf16_normalize(&orientation, &orientation);
+// 		qf16_conj(&orientation, &orientation); //Inverts quaternion (inverse of unit quaternion is the conjugate)
+// 
+// 
+// 		
+// 		printf("%i, %i, %i, %i, %i, %i, %i\n",
+// 		bno055_quaternion.w, bno055_quaternion.x, bno055_quaternion.y, bno055_quaternion.z, bno055_linear_accel.x, bno055_linear_accel.y, bno055_linear_accel.z);
+// 		
+// 		if (accel_calib > 1 && gyro_calib > 1 && mag_calib > 1 && sys_calib > 1)
+// 		{
+// 			
+// 		}
+// 		else
+// 		{
+// 			printf("Calib stat: %u %u %u %u\n",accel_calib, gyro_calib, mag_calib, sys_calib);
+// 		}
+// 		
+// 		// 				printf("%lu,",cycles);
+// 		// 				printf("%li,%lu,%lu,",pressure,temperature);
+// 		// 				//printf("%.3f,%.3f,%.3f,%.3f,",yaw_to_heading(imu_data.yaw),imu_data.yaw,imu_data.roll,imu_data.pitch);
+// 		// 				//printf("%.3f,%i,",yawAngle,pitchAngle);
+// 		// 				printf("%.5f,%.5f,",GPSdata.latdecimal,GPSdata.londecimal);
+// 		
+// 		bmp280_get_uncomp_data(&ucomp_data, &bmp);
+// 		bmp280_get_comp_pres_32bit(&pres32, ucomp_data.uncomp_press, &bmp);
+// 		bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
+// 		bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
+// 		
+// 		print_rslt("get_uncomp_data",rslt);
+// 		printf("%lu\n",pres32);
+// 		
+// 		pressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
+// 		altitude = getAltitude(initialPressure, pressure, temperature);
+// 		//velocity = getVelocity();
+// 		smooth_altitude = (int32_t)(smoothing_factor * altitude + (1-smoothing_factor)*smooth_altitude);
+// 		
+// 		//Velocity Tentative Idea
+// 		altitudeArray[0] = smooth_altitude;
+// 		for (int n = 1; n < 9; n++){
+// 			altitudeArray[n] = altitudeArray[n-1];
+// 		}
+// 		
+// 		//teamID,my_time,packetCount,altitude,pressure,temperature,voltage,GPSTime,GPSLat,GPSLong,GPSAlt,GPSSats,smooth_x,smooth_y,smooth_z,state
+// 		
+// 		if (state == 0){
+// 			printf("Flight State 0");
+// 			if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= 0)){ //Work on Velocity later, this will work for now
+// 				state = 1;
+// 			}
+// 			if (smooth_altitude > maxAltitude) {
+// 				maxAltitude = smooth_altitude;
+// 			}
+// 		}
+// 		if (state == 1){
+// 			printf("Flight State 1");
+// 			if (smooth_altitude-initialAltitude<=450){
+// 				state = 2;
+// 			}
+// 		}
+// 		if (state == 2){
+// 			printf("Flight State 2");
+// 			if ((smooth_altitude - initialAltitude <= 50) /*&& (velocity<=1)*/){
+// 				state = 3;
+// 			}
+// 		}
+// 		if (state == 3){
+// 			printf("Flight State 3");
+// 			//Buzzer or something
+// 		}
+ 	}
 }
 
 void print_rslt(const char api_name[], int8_t rslt)

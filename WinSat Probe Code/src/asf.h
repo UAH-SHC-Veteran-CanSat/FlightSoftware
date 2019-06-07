@@ -65,6 +65,9 @@
 // From module: Delay routines
 #include <delay.h>
 
+// From module: FIFO - First-In-First-Out circular buffer
+#include <fifo.h>
+
 // From module: GPIO - General purpose Input/Output
 #include <gpio.h>
 
