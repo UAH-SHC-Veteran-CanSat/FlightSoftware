@@ -32,12 +32,14 @@
           <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.basic.gpio" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.utils.stdio.stdio_serial" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.adc" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.rtc" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="xmega.drivers.tc" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.twi" value="Add" config="both" content-id="Atmel.ASF" />
-          <option id="xmega.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.wdt" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="xmega.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
         </options>
         <configurations />
         <files>
@@ -108,6 +110,14 @@
           <file path="src/ASF/common/services/delay/xmega/cycle_counter.h" framework="" version="3.34.1" source="common\services\delay\xmega\cycle_counter.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/xmega/drivers/wdt/wdt.c" framework="" version="3.34.1" source="xmega\drivers\wdt\wdt.c" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/xmega/drivers/wdt/wdt.h" framework="" version="3.34.1" source="xmega\drivers\wdt\wdt.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/serial/usart_serial.c" framework="" version="3.34.1" source="common\services\serial\usart_serial.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/serial/xmega_usart/usart_serial.h" framework="" version="3.34.1" source="common\services\serial\xmega_usart\usart_serial.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/services/serial/serial.h" framework="" version="3.34.1" source="common\services\serial\serial.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/stdio/read.c" framework="" version="3.34.1" source="common\utils\stdio\read.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/stdio/write.c" framework="" version="3.34.1" source="common\utils\stdio\write.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/common/utils/stdio/stdio_serial/stdio_serial.h" framework="" version="3.34.1" source="common\utils\stdio\stdio_serial\stdio_serial.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/xmega/drivers/tc/tc.c" framework="" version="3.34.1" source="xmega\drivers\tc\tc.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/xmega/drivers/tc/tc.h" framework="" version="3.34.1" source="xmega\drivers\tc\tc.h" changed="False" content-id="Atmel.ASF" />
         </files>
         <documentation help="http://asf.atmel.com/docs/3.34.1/common.applications.user_application.user_board.xmegaau/html/index.html" />
         <offline-documentation help="" />
@@ -178,6 +188,10 @@
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/xmega/drivers/wdt</Value>
+            <Value>../src/ASF/common/services/serial/xmega_usart</Value>
+            <Value>../src/ASF/common/services/serial</Value>
+            <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -218,6 +232,10 @@
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/xmega/drivers/wdt</Value>
+            <Value>../src/ASF/common/services/serial/xmega_usart</Value>
+            <Value>../src/ASF/common/services/serial</Value>
+            <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
           </ListValues>
         </avrgcc.assembler.general.IncludePaths>
       </AvrGcc>
@@ -264,6 +282,10 @@
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/xmega/drivers/wdt</Value>
+            <Value>../src/ASF/common/services/serial/xmega_usart</Value>
+            <Value>../src/ASF/common/services/serial</Value>
+            <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -305,6 +327,10 @@
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/xmega/drivers/wdt</Value>
+            <Value>../src/ASF/common/services/serial/xmega_usart</Value>
+            <Value>../src/ASF/common/services/serial</Value>
+            <Value>../src/ASF/common/utils/stdio/stdio_serial</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
           </ListValues>
         </avrgcc.assembler.general.IncludePaths>
         <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
@@ -326,11 +352,15 @@
     <Folder Include="src\ASF\common\services\gpio\xmega_gpio\" />
     <Folder Include="src\ASF\common\services\ioport\" />
     <Folder Include="src\ASF\common\services\ioport\xmega\" />
+    <Folder Include="src\ASF\common\services\serial\" />
+    <Folder Include="src\ASF\common\services\serial\xmega_usart\" />
     <Folder Include="src\ASF\common\services\sleepmgr\" />
     <Folder Include="src\ASF\common\services\sleepmgr\xmega\" />
     <Folder Include="src\ASF\common\utils\" />
     <Folder Include="src\ASF\common\utils\interrupt\" />
     <Folder Include="src\ASF\common\utils\make\" />
+    <Folder Include="src\ASF\common\utils\stdio\" />
+    <Folder Include="src\ASF\common\utils\stdio\stdio_serial\" />
     <Folder Include="src\ASF\xmega\" />
     <Folder Include="src\ASF\xmega\drivers\" />
     <Folder Include="src\ASF\xmega\drivers\adc\" />
@@ -341,6 +371,7 @@
     <Folder Include="src\ASF\xmega\drivers\rtc\" />
     <Folder Include="src\ASF\xmega\drivers\sleep\" />
     <Folder Include="src\ASF\xmega\drivers\spi\" />
+    <Folder Include="src\ASF\xmega\drivers\tc\" />
     <Folder Include="src\ASF\xmega\drivers\twi\" />
     <Folder Include="src\ASF\xmega\drivers\usart\" />
     <Folder Include="src\ASF\xmega\drivers\wdt\" />
@@ -353,12 +384,45 @@
     <Folder Include="src\libfixmatrix" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\ASF\common\services\serial\serial.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\services\serial\usart_serial.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\common\services\serial\xmega_usart\usart_serial.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\utils\stdio\read.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\common\utils\stdio\stdio_serial\stdio_serial.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\utils\stdio\write.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\xmega\drivers\tc\tc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\xmega\drivers\tc\tc.h">
+      <SubType>compile</SubType>
+    </None>
     <Compile Include="src\ASF\xmega\drivers\wdt\wdt.c">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\xmega\drivers\wdt\wdt.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\config\conf_usart_serial.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\usart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\usart.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\libfixmatrix\fix16.c">
       <SubType>compile</SubType>
     </Compile>

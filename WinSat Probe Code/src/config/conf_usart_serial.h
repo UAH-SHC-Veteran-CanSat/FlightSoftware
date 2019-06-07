@@ -44,18 +44,8 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 
+
 #ifndef CONF_USART_SERIAL_H_INCLUDED
 #define CONF_USART_SERIAL_H_INCLUDED
-
-//These #defines are the "settings" for the USART communication
-//The receiving end, computer or radio, must have the same settings or it won't work
-#define USART_SERIAL_BAUDRATE            115200 //Also called 115k Baud
-#define USART_SERIAL_CHAR_LENGTH         USART_CHSIZE_8BIT_gc //Each packet of data is 8 bits long
-#define USART_SERIAL_PARITY              USART_PMODE_DISABLED_gc //No Parity, important in computer RAM, not for this
-#define USART_SERIAL_STOP_BIT            true //One stop bit
-
-//This function prototype lets the compiler know we are going to use this function in another file
-void UART_Comms_Init(void); //This will initialize the uart communications
-
 
 #endif /* CONF_USART_SERIAL_H_INCLUDED */

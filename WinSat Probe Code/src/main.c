@@ -31,7 +31,7 @@
 #include <asf.h>
 #include <math.h>
 #include <string.h>
-#include <stdio.h>
+#include "DRIVERS/usart.h"
 #include "DRIVERS/altitude.h"
 //#include "DRIVERS/pressure.h"
 #include "DRIVERS/temperature.h"
@@ -267,6 +267,12 @@ int main (void)
 	sysclk_enable_peripheral_clock(&USARTC1);
 	sysclk_enable_peripheral_clock(&USARTD1);
 	
+	UART_Comms_Init();
+	
+	printf("\n\n\nUSART INIT\n");
+	log_printf("\n\n\nSECONDARY COMMS INIT\n");
+	log_printf("Testing string formatting: %u, %u",69, 420);
+	
 	sysclk_enable_peripheral_clock(&TWIC);
 	
 	sysclk_enable_peripheral_clock(&ADCA);
@@ -354,6 +360,8 @@ int main (void)
 	print_rslt(" bmp280_set_power_mode status", rslt);
 
 	printf("\nInitialization Complete!\n\n\n");
+	
+	delay_ms(5000);
 	
 	
 	v3d position;
