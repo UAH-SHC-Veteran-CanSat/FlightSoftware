@@ -258,7 +258,8 @@ int main (void)
 		
 		imu_update();
 		
-		printf("2591,1,1,10,10,10,10,10,10,10,10,10,%.0f,%.0f,10,PRELAUNCH,%.0f\n",imu_pitch(), imu_roll(), imu_heading());
+		printf("2591,0,0,0,0,0,0,0,0,0,0,0,%.0f,%.0f,00,PRELAUNCH,%.0f\n",imu_pitch(), imu_roll(), imu_heading());
+		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
 // 		printf("roll : %f\n",imu_roll());
 // 		printf("pitch: %f\n",imu_pitch());

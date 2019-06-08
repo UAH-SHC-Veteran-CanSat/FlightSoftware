@@ -32,10 +32,10 @@ double imu_roll();
 double imu_pitch();
 double imu_heading();
 
-uint16_t imu_accel_cal();
-uint16_t imu_gyro_cal();
-uint16_t imu_mag_cal();
-uint16_t imu_sys_cal();
+uint8_t imu_accel_cal();
+uint8_t imu_gyro_cal();
+uint8_t imu_mag_cal();
+uint8_t imu_sys_cal();
 
 
 

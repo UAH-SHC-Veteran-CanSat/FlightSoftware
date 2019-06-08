@@ -15,6 +15,11 @@ struct bno055_t bno055;
 struct bno055_linear_accel_double_t bno055_linear_accel;
 struct bno055_euler_double_t bno055_euler;
 
+uint8_t accel_calib;
+uint8_t gyro_calib;
+uint8_t mag_calib;
+uint8_t sys_calib;
+
 void imu_init()
 {
 	twi_options_t m_options = {
@@ -55,22 +60,27 @@ void imu_update()
 {
 	bno055_convert_double_linear_accel_xyz_msq(&bno055_linear_accel);
 	bno055_convert_double_euler_hpr_deg(&bno055_euler);
+	
+	bno055_get_accel_calib_stat(&accel_calib);
+	bno055_get_gyro_calib_stat(&gyro_calib);
+	bno055_get_mag_calib_stat(&mag_calib);
+	bno055_get_sys_calib_stat(&sys_calib);
 }
 
 
 double imu_accel_x()
 {
-	
+	return bno055_linear_accel.x;
 }
 
 double imu_accel_y()
 {
-	
+	return bno055_linear_accel.y;
 }
 
 double imu_accel_z()
 {
-	
+	return bno055_linear_accel.z;
 }
 
 
@@ -91,24 +101,24 @@ double imu_heading()
 }
 
 
-uint16_t imu_accel_cal()
+uint8_t imu_accel_cal()
 {
-	
+	return accel_calib;
 }
 
-uint16_t imu_gyro_cal()
+uint8_t imu_gyro_cal()
 {
-	
+	return gyro_calib;
 }
 
-uint16_t imu_mag_cal()
+uint8_t imu_mag_cal()
 {
-	
+	return mag_calib;
 }
 
-uint16_t imu_sys_cal()
+uint8_t imu_sys_cal()
 {
-	
+	return sys_calib;
 }
 
 
