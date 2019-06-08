@@ -386,34 +386,44 @@ int main (void)
 // 	uint32_t last_time = 0;
 // 	
 // 	/* Insert application code here, after the board has been initialized. */
-// 	uint8_t state = 0;
-// 	uint8_t teamID = 2591;
-// 	uint32_t initialPressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
-// 	uint32_t pressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
-// 	int32_t temperature = getTemperature();
-// 	int32_t initialAltitude = getAltitude(initialPressure,pressure,temperature);
-// 	int32_t maxAltitude = 0;
-// 	int32_t altitude = 0;
-// 	//int32_t velocity = 0;
-// 	int32_t smooth_altitude = 0;
-// 	double smoothing_factor = 0.50;
-// 	int32_t altitudeArray[10];
-	
+	uint8_t state = 0;
+	uint16_t teamID = 2591;
+	int8_t initialPressure = bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
+	int8_t pressure = bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
+	int32_t temperature = getTemperature();
+	int32_t initialAltitude = getAltitude(initialPressure,pressure,temperature);
+	int32_t maxAltitude = 0;
+	int32_t altitude = 0;
+	int32_t oldAltitude = 0;
+	int32_t newAltitude = 0;
+	//int32_t velocity = 0;
+	int32_t smooth_altitude = 0;
+	int32_t smoothOldAltitude = 0;
+	int32_t smoothNewAltitude = 0;
+	double smoothing_factor = 0.50;
+	int32_t altitudeArray[10];
+	int32_t altitudeChange = 0;
+	double newTime = 0;
+	double oldTime = 0;	
 	
 	while (1){
 		
 		//printf("hi\n");
-		delay_ms(1000);
 		if(is_command_ready()){
 			printf("%s\n",get_command());
 		}
 		gps_update();
-		printf("time:%f\n",gps_get_time());
-		printf("lat :%f\n",gps_get_latitude());
-		printf("lon :%f\n",gps_get_longitude());
-		printf("alt :%f\n",gps_get_altitude());
-		printf("sats:%u\n\n",gps_get_sats());
-		
+// 		printf("time:%f\n",gps_get_time());
+// 		printf("lat :%f\n",gps_get_latitude());
+// 		printf("lon :%f\n",gps_get_longitude());
+// 		printf("alt :%f\n",gps_get_altitude());
+// 		printf("sats:%u\n\n",gps_get_sats());
+		printf("\n\n\n\n");
+		delay_ms(1000);
+		newAltitude = getAltitude(initialPressure,pressure,temperature);
+		smoothNewAltitude = (int32_t)(smoothing_factor * newAltitude + (1-smoothing_factor)*smoothNewAltitude);
+		newTime = gps_get_time();
+		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		printf("temperature: %f\n\n",getTemperature());
 
 // 		struct bno055_linear_accel_t bno055_linear_accel;
@@ -485,44 +495,55 @@ int main (void)
 // 		print_rslt("get_uncomp_data",rslt);
 // 		printf("%lu\n",pres32);
 // 		
-// 		pressure = bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
-// 		altitude = getAltitude(initialPressure, pressure, temperature);
-// 		//velocity = getVelocity();
-// 		smooth_altitude = (int32_t)(smoothing_factor * altitude + (1-smoothing_factor)*smooth_altitude);
-// 		
-// 		//Velocity Tentative Idea
-// 		altitudeArray[0] = smooth_altitude;
-// 		for (int n = 1; n < 9; n++){
-// 			altitudeArray[n] = altitudeArray[n-1];
-// 		}
-// 		
-// 		//teamID,my_time,packetCount,altitude,pressure,temperature,voltage,GPSTime,GPSLat,GPSLong,GPSAlt,GPSSats,smooth_x,smooth_y,smooth_z,state
-// 		
-// 		if (state == 0){
-// 			printf("Flight State 0");
-// 			if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= 0)){ //Work on Velocity later, this will work for now
-// 				state = 1;
-// 			}
-// 			if (smooth_altitude > maxAltitude) {
-// 				maxAltitude = smooth_altitude;
-// 			}
-// 		}
-// 		if (state == 1){
-// 			printf("Flight State 1");
-// 			if (smooth_altitude-initialAltitude<=450){
-// 				state = 2;
-// 			}
-// 		}
-// 		if (state == 2){
-// 			printf("Flight State 2");
-// 			if ((smooth_altitude - initialAltitude <= 50) /*&& (velocity<=1)*/){
-// 				state = 3;
-// 			}
-// 		}
-// 		if (state == 3){
-// 			printf("Flight State 3");
-// 			//Buzzer or something
-// 		}
+		pressure = bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
+		temperature = getTemperature();
+		altitude = getAltitude(initialPressure, pressure, temperature);
+		//velocity = getVelocity();
+		smooth_altitude = (int32_t)(smoothing_factor * altitude + (1-smoothing_factor)*smooth_altitude);
+		printf("New Time: %f, Old Time: %f\n", newTime, oldTime);
+		altitudeChange = (newAltitude-oldAltitude)/(int32_t)(newTime-oldTime);
+		double timeChange = newTime-oldTime;
+		printf("Time Change: %f\n", timeChange);
+		
+		
+		//Velocity Tentative Idea
+		altitudeArray[0] = smooth_altitude;
+		for (int n = 1; n < 9; n++){
+			altitudeArray[n] = altitudeArray[n-1];
+		}
+		printf("Altitude: %li, Temperature: %li, Pressure: %i, AltitudeChange: %li\n", altitude, temperature, pressure, altitudeChange);
+		//teamID,my_time,packetCount,altitude,pressure,temperature,voltage,GPSTime,GPSLat,GPSLong,GPSAlt,GPSSats,smooth_x,smooth_y,smooth_z,state
+		
+		if (state == 0){
+			printf("Flight State 0\n");
+			if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= -10)){ //Work on Velocity later, this will work for now
+			//if ((smooth_altitude <= 500) && (altitudeChange <= -10)){
+				state = 1;
+			}
+			if (smooth_altitude > maxAltitude) {
+				maxAltitude = smooth_altitude;
+			}
+		}
+		if (state == 1){
+			printf("Flight State 1\n");
+			if (smooth_altitude-initialAltitude<=450){
+				state = 2;
+			}
+		}
+		if (state == 2){
+			printf("Flight State 2\n");
+			if ((smooth_altitude - initialAltitude <= 50) /*&& (velocity<=1)*/){
+				state = 3;
+			}
+		}
+		if (state == 3){
+			printf("Flight State 3\n");
+			//Buzzer or something
+		}
+		oldAltitude = getAltitude(initialPressure,pressure,temperature);
+		smoothOldAltitude = (int32_t)(smoothing_factor * oldAltitude + (1-smoothing_factor)*smoothOldAltitude);
+		oldTime = gps_get_time();
+		printf("Old Altitude: %li, Old Time: %f\n", smoothOldAltitude, oldTime);
  	}
 }
 
