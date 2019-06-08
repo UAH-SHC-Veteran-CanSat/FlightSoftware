@@ -111,6 +111,14 @@ char* get_command(){
 	static char rx_string[PRIMARY_RX_BUFFER_SIZE];
 	uint16_t i = 0;
 	char tempChar;
+	if (fifo_is_empty(&rx_fifo) && commands_ready > 0)
+	{
+		// Oops the fifo wasn't big enough
+		commands_ready = 0;
+		rx_string[0] = '\0';
+		return rx_string;
+	}
+	
 	while(!fifo_is_empty(&rx_fifo)) {
 		fifo_pull_uint8(&rx_fifo, &tempChar);
 		if(tempChar != '\n') {
@@ -139,7 +147,6 @@ ISR(USART_OPENLOG_RXC_vect){
 	if(data == '\n')
 	{
 		commands_ready++;
-		printf("Commands ready: %u\n",commands_ready);
 	}
 	fifo_push_uint8(&rx_fifo, data);
 }
@@ -152,7 +159,6 @@ ISR(USART_XBEE_RXC_vect){
 	if(data == '\n')
 	{
 		commands_ready++;
-		printf("Commands ready: %u\n",commands_ready);
 	}
 	fifo_push_uint8(&rx_fifo, data);
 }
