@@ -413,6 +413,8 @@ int main (void)
 		printf("lon :%f\n",gps_get_longitude());
 		printf("alt :%f\n",gps_get_altitude());
 		printf("sats:%u\n\n",gps_get_sats());
+		
+		printf("temperature: %f\n\n",getTemperature());
 
 // 		struct bno055_linear_accel_t bno055_linear_accel;
 // 		bno055_read_linear_accel_xyz(&bno055_linear_accel);

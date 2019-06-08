@@ -68,7 +68,7 @@
 * @note Are you using Linux platform
 */
 
-#include "asf.h";
+#include "asf.h"
 
 /*!
 * @brief For the Linux platform support

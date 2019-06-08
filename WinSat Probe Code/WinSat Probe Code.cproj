@@ -438,6 +438,12 @@
     <Compile Include="src\DRIVERS\GPS.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\DRIVERS\IMU.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\IMU.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\DRIVERS\usart.c">
       <SubType>compile</SubType>
     </Compile>
