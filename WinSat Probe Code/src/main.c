@@ -36,146 +36,13 @@
 #include "DRIVERS/altitude.h"
 //#include "DRIVERS/pressure.h"
 #include "DRIVERS/temperature.h"
-#include "DRIVERS/bmp280.h"
-#include "DRIVERS/bno055.h"
-#include "libfixmatrix/fixquat.h"
+#include "DRIVERS/IMU.h"
 
 
 //Thomas's Code -------------------------------------------------------------------------------------------------
 void print_rslt(const char api_name[], int8_t rslt);
 int8_t i2c_reg_write(uint8_t i2c_addr, uint8_t reg_addr, uint8_t *reg_data, uint16_t length);
 int8_t i2c_reg_read(uint8_t i2c_addr, uint8_t reg_addr, uint8_t *reg_data, uint16_t length);
-
-#define FIXMATH_NO_CACHE 1
-
-#define	I2C_BUFFER_LEN 64
-#define I2C0 5
-#define	BNO055_I2C_BUS_WRITE_ARRAY_INDEX	((u8)1)
-
-s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
-/*	\Brief: The API is used as I2C bus write
- *	\Return : Status of the I2C write
- *	\param dev_addr : The device address of the sensor
- *	\param reg_addr : Address of the first register,
- *   will data is going to be written
- *	\param reg_data : It is a value hold in the array,
- *		will be used for write the value into the register
- *	\param cnt : The no of byte of data to be write
- */
-s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
-{
-	s32 BNO055_iERROR = BNO055_INIT_VALUE;
-	u8 array[I2C_BUFFER_LEN];
-// 	u8 stringpos = BNO055_INIT_VALUE;
-
-
-// 	array[BNO055_INIT_VALUE] = reg_addr;
-// 	for (stringpos = BNO055_INIT_VALUE; stringpos < cnt; stringpos++)
-// 	{
-// 		array[stringpos + BNO055_I2C_BUS_WRITE_ARRAY_INDEX] =
-// 			*(reg_data + stringpos);
-// 	}
-
-	if(cnt > 1)
-	{
-		printf("The BNO055 Actually does write more than one byte at a time, isn't that surprising.\nI guess it's time to fix the I2C write hack then.");
-	}
-
-	cnt = cnt + 1;	// BNO055 Discards the first write, so we make the first value 0
-	array[0] = 0;
-	array[1] = reg_data[0]; // This breaks if it ever sends more than one byte at a time, but I don't think it does;
-
-	/*
-	* Please take the below APIs as your reference for
-	* write the data using I2C communication
-	* "BNO055_iERROR = I2C_WRITE_STRING(DEV_ADDR, ARRAY, CNT+1)"
-	* add your I2C write APIs here
-	* BNO055_iERROR is an return value of I2C read API
-	* Please select your valid return value
-	* In the driver BNO055_SUCCESS defined as 0
-    * and FAILURE defined as -1
-	* Note :
-	* This is a full duplex operation,
-	* The first read data is discarded, for that extra write operation
-	* have to be initiated. For that cnt+1 operation done
-	* in the I2C write string function
-	* For more information please refer data sheet SPI communication:
-	*/
-
-	
-
-	twi_package_t readbno055;
-	readbno055.addr[0]	   = reg_addr-1; // it's minus one because the BNO055 discards the first write, and the second write one is at the next address 
-	readbno055.addr_length = 1;
-	readbno055.chip        = dev_addr;
-	readbno055.buffer      = array;
-	readbno055.length      = cnt;
-	readbno055.no_wait     = false;
-
-
-	BNO055_iERROR = (s8)twi_master_write(&TWIC,&readbno055);
-
-// 	printf("I2C Write cnt=%u status=%i Data:  ",cnt,BNO055_iERROR);
-// 	for (u8 i = 0; i < cnt; i++)
-// 	{
-// 		printf(" %x, ",array[i]);
-// 	}
-// 	printf("\n");
-
-	return (s8)BNO055_iERROR;
-}
-
-s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt);
- /*	\Brief: The API is used as I2C bus read
- *	\Return : Status of the I2C read
- *	\param dev_addr : The device address of the sensor
- *	\param reg_addr : Address of the first register,
- *  will data is going to be read
- *	\param reg_data : This data read from the sensor,
- *   which is hold in an array
- *	\param cnt : The no of byte of data to be read
- */
-s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
-{
-	s32 BNO055_iERROR = BNO055_INIT_VALUE;
-	u8 array[I2C_BUFFER_LEN] = {BNO055_INIT_VALUE};
-// 	u8 stringpos = BNO055_INIT_VALUE;
-// 
-// 	array[BNO055_INIT_VALUE] = reg_addr;
-
-	/* Please take the below API as your reference
-	 * for read the data using I2C communication
-	 * add your I2C read API here.
-	 * "BNO055_iERROR = I2C_WRITE_READ_STRING(DEV_ADDR,
-	 * ARRAY, ARRAY, 1, CNT)"
-	 * BNO055_iERROR is an return value of SPI write API
-	 * Please select your valid return value
-     * In the driver BNO055_SUCCESS defined as 0
-     * and FAILURE defined as -1
-	 */
-
-	twi_package_t readbno055;
-	readbno055.addr[0]	   = reg_addr;
-	readbno055.addr_length = 1;
-	readbno055.chip        = dev_addr;
-	readbno055.buffer      = array;
-	readbno055.length      = cnt;
-	readbno055.no_wait     = false;
-
-	BNO055_iERROR = (int8_t) twi_master_read(&TWIC, &readbno055);
-	memcpy(reg_data, array, cnt);
-	
-/*	printf("I2C Read: %x\n",array[0]);*/
-
-// 	for (stringpos = BNO055_INIT_VALUE; stringpos < cnt; stringpos++)
-// 		*(reg_data + stringpos) = array[stringpos];
-	return (s8)BNO055_iERROR;
-}
-
-void BNO055_delay_msek(u32 msek)
-{
-	delay_ms(msek);
-}
 
 /*!
  *  @brief Function for writing the sensor's registers through I2C bus.
@@ -240,12 +107,11 @@ int8_t i2c_reg_read(uint8_t i2c_addr, uint8_t reg_addr, uint8_t *reg_data, uint1
     return result;
 }
 
-struct bno055_t bno055; 
-struct bmp280_dev bmp;
-struct bmp280_config conf;
-struct bmp280_uncomp_data ucomp_data;
-uint32_t pres32, pres64;
-double pres;
+// struct bmp280_dev bmp;
+// struct bmp280_config conf;
+// struct bmp280_uncomp_data ucomp_data;
+// uint32_t pres32, pres64;
+// double pres;
 //Thomas' Code---------------------------------------------------------------------------------------------------
 
 int main (void)
@@ -300,36 +166,10 @@ int main (void)
 
 	wdt_reset();
 
+	imu_init();
 
-// 	printf("Starting BNO055 Init\n");
-// 	twi_options_t m_options = {
-// 		.speed = 400000,
-// 		.speed_reg = TWI_BAUD(32000000, 400000),
-// 	};
-// 	
-// 	sysclk_enable_peripheral_clock(&TWIC);
-// 	twi_master_init(&TWIC, &m_options);
-// 	twi_master_enable(&TWIC);
-// 
-// 	bno055.bus_write = BNO055_I2C_bus_write;
-// 	bno055.bus_read = BNO055_I2C_bus_read;
-// 	bno055.delay_msec = BNO055_delay_msek;
-// 	bno055.dev_addr = BNO055_I2C_ADDR2;
-// 
-// 	
-// 	int8_t initStatus = bno055_init(&bno055);
-// 	printf("Init Status: %i  (0 is good)\n", initStatus);
-// 	bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
-// 	//bno055_set_clk_src(0x01);
-// 	int8_t status = bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
-// 	uint8_t operation_mode = 0;
-// 	bno055_get_operation_mode(&operation_mode);
-// 	printf("Operation mode is %u, should be %u\nWrite status: %i  (0 is good)\n",operation_mode,BNO055_OPERATION_MODE_NDOF,status);
-// 	
-// 	wdt_reset();
-// 	
-// 	printf("IMU Initialized\n");
-// 	
+	wdt_reset();
+
 // 	printf("Starting BMP280 Init\n");
 // 	
 // 	bmp.read = i2c_reg_read;
@@ -408,7 +248,12 @@ int main (void)
 	
 	while (1){
 		
+<<<<<<< HEAD
 		//printf("hi\n");
+=======
+//		printf("hi\n");
+		delay_ms(100);
+>>>>>>> ce9d697ef6ccfe6e31e2737ad6931a77b25a00f2
 		if(is_command_ready()){
 			printf("%s\n",get_command());
 		}
@@ -418,6 +263,7 @@ int main (void)
 // 		printf("lon :%f\n",gps_get_longitude());
 // 		printf("alt :%f\n",gps_get_altitude());
 // 		printf("sats:%u\n\n",gps_get_sats());
+<<<<<<< HEAD
 		printf("\n\n\n\n");
 		delay_ms(1000);
 		newAltitude = getAltitude(initialPressure,pressure,temperature);
@@ -425,6 +271,19 @@ int main (void)
 		newTime = gps_get_time();
 		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		printf("temperature: %f\n\n",getTemperature());
+=======
+		
+/*		printf("temperature: %f\n\n",getTemperature());*/
+		
+		imu_update();
+		
+		printf("2591,0,0,0,0,0,0,0,0,0,0,0,%.0f,%.0f,00,PRELAUNCH,%.0f\n",imu_pitch(), imu_roll(), imu_heading());
+		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
+		
+// 		printf("roll : %f\n",imu_roll());
+// 		printf("pitch: %f\n",imu_pitch());
+// 		printf("head : %f\n",imu_heading());
+>>>>>>> ce9d697ef6ccfe6e31e2737ad6931a77b25a00f2
 
 // 		struct bno055_linear_accel_t bno055_linear_accel;
 // 		bno055_read_linear_accel_xyz(&bno055_linear_accel);
@@ -547,31 +406,31 @@ int main (void)
  	}
 }
 
-void print_rslt(const char api_name[], int8_t rslt)
-{
-	if (rslt != BMP280_OK)
-	{
-		printf("%s\t", api_name);
-		if (rslt == BMP280_E_NULL_PTR)
-		{
-			printf("Error [%d] : Null pointer error\r\n", rslt);
-		}
-		else if (rslt == BMP280_E_COMM_FAIL)
-		{
-			printf("Error [%d] : Bus communication failed\r\n", rslt);
-		}
-		else if (rslt == BMP280_E_IMPLAUS_TEMP)
-		{
-			printf("Error [%d] : Invalid Temperature\r\n", rslt);
-		}
-		else if (rslt == BMP280_E_DEV_NOT_FOUND)
-		{
-			printf("Error [%d] : Device not found\r\n", rslt);
-		}
-		else
-		{
-			/* For more error codes refer "*_defs.h" */
-			printf("Error [%d] : Unknown error code\r\n", rslt);
-		}
-	}
-}
+// void print_rslt(const char api_name[], int8_t rslt)
+// {
+// 	if (rslt != BMP280_OK)
+// 	{
+// 		printf("%s\t", api_name);
+// 		if (rslt == BMP280_E_NULL_PTR)
+// 		{
+// 			printf("Error [%d] : Null pointer error\r\n", rslt);
+// 		}
+// 		else if (rslt == BMP280_E_COMM_FAIL)
+// 		{
+// 			printf("Error [%d] : Bus communication failed\r\n", rslt);
+// 		}
+// 		else if (rslt == BMP280_E_IMPLAUS_TEMP)
+// 		{
+// 			printf("Error [%d] : Invalid Temperature\r\n", rslt);
+// 		}
+// 		else if (rslt == BMP280_E_DEV_NOT_FOUND)
+// 		{
+// 			printf("Error [%d] : Device not found\r\n", rslt);
+// 		}
+// 		else
+// 		{
+// 			/* For more error codes refer "*_defs.h" */
+// 			printf("Error [%d] : Unknown error code\r\n", rslt);
+// 		}
+// 	}
+// }
