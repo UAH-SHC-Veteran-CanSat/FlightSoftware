@@ -395,11 +395,38 @@ int main (void)
 // 	double smoothing_factor = 0.50;
 // 	int32_t altitudeArray[10];
 	
+	printf("TESTING FIFO\n");
+	union buffer_element {uint8_t byte;};
+	union buffer_element test_fifo_buffer[128];
+	fifo_desc_t test_fifo;
+	
+	fifo_init(&test_fifo, test_fifo_buffer, 128);
+	
+	fifo_push_uint8(&test_fifo, 'h' & 0xff);
+	fifo_push_uint8(&test_fifo, 'e' & 0xff);
+	fifo_push_uint8(&test_fifo, 'l' & 0xff);
+	fifo_push_uint8(&test_fifo, 'l' & 0xff);
+	fifo_push_uint8(&test_fifo, 'o' & 0xff);
+	fifo_push_uint8(&test_fifo, '\n' & 0xff);
+	
+	while(!fifo_is_empty(&test_fifo)) {
+		uint8_t data;
+		fifo_pull_uint8(&test_fifo, &data);
+		printf("c:%c\n",data);
+	}
+	
+	printf("\nTEST COMPLETE\n");
+	
 	
 	while (1){
 		
-		printf("hi\n");
-		delay_ms(1000);
+		//printf("hi\n");
+		delay_ms(500);
+		if(is_command_ready()){
+			printf("%s\n",get_command());
+		}
+
+
 // 		struct bno055_linear_accel_t bno055_linear_accel;
 // 		bno055_read_linear_accel_xyz(&bno055_linear_accel);
 // 		acceleration.x = fix16_from_float((float)bno055_linear_accel.x / 100.0);
