@@ -31,30 +31,21 @@ void UART_Comms_Init(void){
 		.stopbits = USART_SERIAL_STOP_BIT
 	};
 	
-	
-	//Initialize the GPS
-	static usart_serial_options_t gps_usart_options = {
-		.baudrate = 9600, //Hardcoded cause this is the only baudrate the GPS supports
-		.charlength = USART_SERIAL_CHAR_LENGTH,
-		.paritytype = USART_SERIAL_PARITY,
-		.stopbits = USART_SERIAL_STOP_BIT
-	};
+
 	
 	//Sets pins for XBee
 	PORTD.DIRSET = 0b10000000;
 	PORTD.DIRCLR = 0b01000000;
 	PORTD.OUTSET = 0b10000000;
 	
-	//Sets pins for OpenLog and GPS
-	PORTC.DIRSET = 0b10001000;
-	PORTC.DIRCLR = 0b01000100;
-	PORTC.OUTSET = 0b10001000;
+	//Sets pins for OpenLog
+	PORTC.DIRSET = 0b00001000;
+	PORTC.DIRCLR = 0b00000100;
+	PORTC.OUTSET = 0b00001000;
 	
 	
 	fifo_init(&rx_fifo, rx_fifo_buffer, PRIMARY_RX_BUFFER_SIZE);
 	
-	usart_serial_init(&USART_GPS, &gps_usart_options);
-	usart_set_rx_interrupt_level(&USART_GPS, USART_INT_LVL_HI);
 	
 #ifdef XBEE_PRIMARY
 
@@ -132,13 +123,6 @@ char* get_command(){
 	rx_string[i] = '\0';
 	return rx_string;
 }
-
-// GPS Stuff is now implemented in a different file
-// ISR(USART_GPS_RXC_vect){
-// 	uint8_t data;
-// 	usart_serial_getchar(&USART_GPS, &data);
-// 	/printf("%c",data);
-// }
 
 #ifdef OPENLOG_PRIMARY
 ISR(USART_OPENLOG_RXC_vect){

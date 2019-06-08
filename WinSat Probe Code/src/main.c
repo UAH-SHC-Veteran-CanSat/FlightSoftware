@@ -32,6 +32,7 @@
 #include <math.h>
 #include <string.h>
 #include "DRIVERS/usart.h"
+#include "DRIVERS/GPS.h"
 #include "DRIVERS/altitude.h"
 //#include "DRIVERS/pressure.h"
 #include "DRIVERS/temperature.h"
@@ -273,7 +274,9 @@ int main (void)
 	
 	printf("\n\n\nUSART INIT\n"); //This prints to xbee
 	log_printf("\n\n\nSECONDARY COMMS INIT\n"); //This prints to openlog
-	log_printf("Testing string formatting: %u, %u",69, 420);
+	log_printf("Test: %u, %u",69, 420);
+	
+	gps_init(0.0);
 	
 	
 	irq_initialize_vectors();
@@ -363,6 +366,7 @@ int main (void)
 // 	print_rslt(" bmp280_set_power_mode status", rslt);
 
 	printf("\nInitialization Complete!\n\n\n");
+	printf("Testing float print %f\n",420.69);
 	
 	delay_ms(500);
 	
@@ -399,11 +403,16 @@ int main (void)
 	while (1){
 		
 		//printf("hi\n");
-		delay_ms(50);
+		delay_ms(1000);
 		if(is_command_ready()){
 			printf("%s\n",get_command());
 		}
-
+		gps_update();
+		printf("time:%f\n",gps_get_time());
+		printf("lat :%f\n",gps_get_latitude());
+		printf("lon :%f\n",gps_get_longitude());
+		printf("alt :%f\n",gps_get_altitude());
+		printf("sats:%u\n\n",gps_get_sats());
 
 // 		struct bno055_linear_accel_t bno055_linear_accel;
 // 		bno055_read_linear_accel_xyz(&bno055_linear_accel);

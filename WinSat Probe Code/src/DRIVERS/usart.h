@@ -19,13 +19,10 @@
 #define USART_OPENLOG USARTC0
 #define USART_OPENLOG_RXC_vect USARTC0_RXC_vect
 
-#define USART_GPS USARTC1
-#define USART_GPS_RXC_vect USARTC1_RXC_vect
-
 
 //Whichever device is uncommented below will respond to printf, the other will work with log_printf
-#define XBEE_PRIMARY
-//#define OPENLOG_PRIMARY
+//#define XBEE_PRIMARY
+#define OPENLOG_PRIMARY
 
 #define SECONDARY_TX_BUFFER_SIZE 128
 
