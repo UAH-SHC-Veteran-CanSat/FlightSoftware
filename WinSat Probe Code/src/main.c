@@ -145,7 +145,7 @@ int main (void)
 		delay_ms(1000);
 		newTime = gps_get_time();
 		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
-		//printf("temperature: %f\n\n",getTemperature());
+		printf("temperature: %f\n\n",getTemperature());
 
 		
 /*		printf("temperature: %f\n\n",getTemperature());*/
@@ -157,7 +157,7 @@ int main (void)
 		
 		alt_update();
 		
-		printf("temp: %f, pres: %f\n",alt_get_temperature(), alt_get_pressure());
+		printf("temp: %f, pres: %f\n",  alt_get_temperature(), alt_get_pressure());
 
 		if (state == 0){
 			printf("Flight State 0\n");
