@@ -27,9 +27,9 @@ void imu_init()
 		.speed_reg = TWI_BAUD(32000000, 400000),
 	};
 
-	sysclk_enable_peripheral_clock(&TWIC);
-	twi_master_init(&TWIC, &m_options);
-	twi_master_enable(&TWIC);
+	sysclk_enable_peripheral_clock(&IMU_TWI);
+	twi_master_init(&IMU_TWI, &m_options);
+	twi_master_enable(&IMU_TWI);
 
 	bno055.bus_write = BNO055_I2C_bus_write;
 	bno055.bus_read = BNO055_I2C_bus_read;
@@ -183,7 +183,7 @@ s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 	readbno055.no_wait     = false;
 
 
-	BNO055_iERROR = (s8)twi_master_write(&TWIC,&readbno055);
+	BNO055_iERROR = (s8)twi_master_write(&IMU_TWI,&readbno055);
 
 // 	printf("I2C Write cnt=%u status=%i Data:  ",cnt,BNO055_iERROR);
 // 	for (u8 i = 0; i < cnt; i++)
@@ -231,7 +231,7 @@ s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 	readbno055.length      = cnt;
 	readbno055.no_wait     = false;
 
-	BNO055_iERROR = (int8_t) twi_master_read(&TWIC, &readbno055);
+	BNO055_iERROR = (int8_t) twi_master_read(&IMU_TWI, &readbno055);
 	memcpy(reg_data, array, cnt);
 	
 /*	printf("I2C Read: %x\n",array[0]);*/

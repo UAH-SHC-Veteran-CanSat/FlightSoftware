@@ -20,6 +20,8 @@
 #define I2C0 5
 #define	BNO055_I2C_BUS_WRITE_ARRAY_INDEX	((u8)1)
 
+#define IMU_TWI TWIC
+
 void imu_init();
 
 void imu_update();
