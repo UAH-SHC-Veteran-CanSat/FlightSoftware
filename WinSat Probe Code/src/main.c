@@ -45,6 +45,7 @@
 int main (void)
 {
 	/* Insert system clock initialization code here (sysclk_init()). */
+	struct pwm_config pwm_cfg;
 
 	sysclk_init();
 	
@@ -85,7 +86,9 @@ int main (void)
 	wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_1KCLK);
 	//wdt_enable();
 	
+	pwm_init(&pwm_cfg, PWM_TCE0, PWM_CH_C, 500);
 
+	pwm_start(&pwm_cfg, 50);
 	
 
 	TCE0.CTRLA = 0b00000110;
@@ -146,7 +149,7 @@ int main (void)
 		newTime = gps_get_time();
 		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		printf("temperature: %f\n\n",getTemperature());
-
+		
 		
 /*		printf("temperature: %f\n\n",getTemperature());*/
 		
