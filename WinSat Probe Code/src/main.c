@@ -142,7 +142,7 @@ int main (void)
 // 		printf("sats:%u\n\n",gps_get_sats());
 
 		printf("\n\n\n\n");
-		delay_ms(1000);
+		delay_ms(100);
 		newTime = gps_get_time();
 		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		printf("temperature: %f\n\n",getTemperature());
