@@ -55,6 +55,8 @@ void alt_init()
 
 	/* Pressure oversampling set at 4x */
 	conf.os_pres = BMP280_OS_8X;
+	
+	conf.os_temp = BMP280_OS_8X;
 
 	/* Setting the output data rate as 1HZ(1000ms) */
 	conf.odr = BMP280_ODR_125_MS;
