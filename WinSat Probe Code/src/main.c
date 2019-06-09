@@ -265,7 +265,7 @@ int main (void)
 		smoothNewAltitude = (int32_t)(smoothing_factor * newAltitude + (1-smoothing_factor)*smoothNewAltitude);
 		newTime = gps_get_time();
 		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
-		printf("temperature: %f\n\n",getTemperature());
+		//printf("temperature: %f\n\n",getTemperature());
 
 		
 /*		printf("temperature: %f\n\n",getTemperature());*/
