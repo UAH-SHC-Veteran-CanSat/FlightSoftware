@@ -228,8 +228,8 @@ int main (void)
 // 	/* Insert application code here, after the board has been initialized. */
 	uint8_t state = 0;
 	uint16_t teamID = 2591;
-	int8_t initialPressure = bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
-	int8_t pressure = bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
+	int8_t initialPressure = 0;//bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
+	int8_t pressure =  0;//bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
 	int32_t temperature = getTemperature();
 	int32_t initialAltitude = getAltitude(initialPressure,pressure,temperature);
 	int32_t maxAltitude = 0;
@@ -248,12 +248,7 @@ int main (void)
 	
 	while (1){
 		
-<<<<<<< HEAD
-		//printf("hi\n");
-=======
 //		printf("hi\n");
-		delay_ms(100);
->>>>>>> ce9d697ef6ccfe6e31e2737ad6931a77b25a00f2
 		if(is_command_ready()){
 			printf("%s\n",get_command());
 		}
@@ -263,15 +258,15 @@ int main (void)
 // 		printf("lon :%f\n",gps_get_longitude());
 // 		printf("alt :%f\n",gps_get_altitude());
 // 		printf("sats:%u\n\n",gps_get_sats());
-<<<<<<< HEAD
+
 		printf("\n\n\n\n");
-		delay_ms(1000);
+		delay_ms(100);
 		newAltitude = getAltitude(initialPressure,pressure,temperature);
 		smoothNewAltitude = (int32_t)(smoothing_factor * newAltitude + (1-smoothing_factor)*smoothNewAltitude);
 		newTime = gps_get_time();
 		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		printf("temperature: %f\n\n",getTemperature());
-=======
+
 		
 /*		printf("temperature: %f\n\n",getTemperature());*/
 		
@@ -280,72 +275,8 @@ int main (void)
 		printf("2591,0,0,0,0,0,0,0,0,0,0,0,%.0f,%.0f,00,PRELAUNCH,%.0f\n",imu_pitch(), imu_roll(), imu_heading());
 		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
-// 		printf("roll : %f\n",imu_roll());
-// 		printf("pitch: %f\n",imu_pitch());
-// 		printf("head : %f\n",imu_heading());
->>>>>>> ce9d697ef6ccfe6e31e2737ad6931a77b25a00f2
 
-// 		struct bno055_linear_accel_t bno055_linear_accel;
-// 		bno055_read_linear_accel_xyz(&bno055_linear_accel);
-// 		acceleration.x = fix16_from_float((float)bno055_linear_accel.x / 100.0);
-// 		acceleration.y = fix16_from_float((float)bno055_linear_accel.y / 100.0);
-// 		acceleration.z = fix16_from_float((float)bno055_linear_accel.z / 100.0);
 // 
-// 		struct bno055_quaternion_t bno055_quaternion;
-// 		bno055_read_quaternion_wxyz(&bno055_quaternion);
-// 		orientation.a = fix16_from_int(bno055_quaternion.w);
-// 		orientation.b = fix16_from_int(bno055_quaternion.x);
-// 		orientation.c = fix16_from_int(bno055_quaternion.y);
-// 		orientation.d = fix16_from_int(bno055_quaternion.z);
-// 
-// 		// Auto reset if BNO055 stops working
-// 		// 		if(bno055_quaternion.w == 0 && bno055_quaternion.x == 0 && bno055_quaternion.y == 0 && bno055_quaternion.z == 0 && bno055_linear_accel.x == 0 && bno055_linear_accel.y == 0 && bno055_linear_accel.z == 0)
-// 		// 		{
-// 		// 			int8_t initStatus = bno055_init(&bno055);
-// 		// 			printf("Init Status: %i  (0 is good)\n", initStatus);
-// 		// 			bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
-// 		// 			//bno055_set_clk_src(0x01);
-// 		// 			int8_t status = bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
-// 		// 			uint8_t operation_mode = 0;
-// 		// 			bno055_get_operation_mode(&operation_mode);
-// 		// 			printf("Operation mode is %u, should be %u\nWrite status: %i  (0 is good)\n",operation_mode,BNO055_OPERATION_MODE_NDOF,status);
-// 		//
-// 		// 			printf("IMU Initialized\n");
-// 		// 			delay_ms(500);
-// 		// 		}
-// 		
-// 		uint8_t accel_calib = 0;
-// 		uint8_t gyro_calib = 0;
-// 		uint8_t mag_calib = 0;
-// 		uint8_t sys_calib = 0;
-// 		bno055_get_accel_calib_stat(&accel_calib);
-// 		bno055_get_gyro_calib_stat(&gyro_calib);
-// 		bno055_get_mag_calib_stat(&mag_calib);
-// 		bno055_get_sys_calib_stat(&sys_calib);
-// 		
-// 		qf16_normalize(&orientation, &orientation);
-// 		qf16_conj(&orientation, &orientation); //Inverts quaternion (inverse of unit quaternion is the conjugate)
-// 
-// 
-// 		
-// 		printf("%i, %i, %i, %i, %i, %i, %i\n",
-// 		bno055_quaternion.w, bno055_quaternion.x, bno055_quaternion.y, bno055_quaternion.z, bno055_linear_accel.x, bno055_linear_accel.y, bno055_linear_accel.z);
-// 		
-// 		if (accel_calib > 1 && gyro_calib > 1 && mag_calib > 1 && sys_calib > 1)
-// 		{
-// 			
-// 		}
-// 		else
-// 		{
-// 			printf("Calib stat: %u %u %u %u\n",accel_calib, gyro_calib, mag_calib, sys_calib);
-// 		}
-// 		
-// 		// 				printf("%lu,",cycles);
-// 		// 				printf("%li,%lu,%lu,",pressure,temperature);
-// 		// 				//printf("%.3f,%.3f,%.3f,%.3f,",yaw_to_heading(imu_data.yaw),imu_data.yaw,imu_data.roll,imu_data.pitch);
-// 		// 				//printf("%.3f,%i,",yawAngle,pitchAngle);
-// 		// 				printf("%.5f,%.5f,",GPSdata.latdecimal,GPSdata.londecimal);
-// 		
 // 		bmp280_get_uncomp_data(&ucomp_data, &bmp);
 // 		bmp280_get_comp_pres_32bit(&pres32, ucomp_data.uncomp_press, &bmp);
 // 		bmp280_get_comp_pres_64bit(&pres64, ucomp_data.uncomp_press, &bmp);
@@ -354,7 +285,7 @@ int main (void)
 // 		print_rslt("get_uncomp_data",rslt);
 // 		printf("%lu\n",pres32);
 // 		
-		pressure = bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
+		//pressure = bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
 		temperature = getTemperature();
 		altitude = getAltitude(initialPressure, pressure, temperature);
 		//velocity = getVelocity();
