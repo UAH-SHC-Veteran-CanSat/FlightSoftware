@@ -12,6 +12,10 @@ int8_t i2c_reg_write(uint8_t i2c_addr, uint8_t reg_addr, uint8_t *reg_data, uint
 int8_t i2c_reg_read(uint8_t i2c_addr, uint8_t reg_addr, uint8_t *reg_data, uint16_t length);
 void bmp280_delay_msek(uint32_t msek);
 
+double pres2alt(double pressure);
+
+uint16_t mod(uint16_t a, uint16_t b);
+
 struct bmp280_dev bmp;
 struct bmp280_config conf;
 struct bmp280_uncomp_data uncomp_data;
@@ -19,8 +23,15 @@ double pressure = 0;
 double temperature = 0;
 double altitude = 0;
 double zeroAltitude = 0;
-double vVel = 0;
 
+union pres_buffer_element {uint32_t word;};
+union pres_buffer_element pres_fifo_buffer[PRES_HIST_BUFFER_LEN];
+fifo_desc_t pres_fifo;
+
+union {
+	float float_var;
+	uint32_t uint_var;
+} float_conv;
 
 void alt_init()
 {
@@ -51,26 +62,34 @@ void alt_init()
 
 	/* configuring the temperature oversampling, filter coefficient and output data rate */
 	/* Overwrite the desired settings */
-	conf.filter = BMP280_FILTER_COEFF_2;
+	conf.filter = BMP280_FILTER_COEFF_4;
 
 	/* Pressure oversampling set at 4x */
-	conf.os_pres = BMP280_OS_8X;
+	conf.os_pres = BMP280_OS_16X;
 	
-	conf.os_temp = BMP280_OS_8X;
+	conf.os_temp = BMP280_OS_2X;
 
-	/* Setting the output data rate as 1HZ(1000ms) */
-	conf.odr = BMP280_ODR_125_MS;
+	/* Setting the output data rate as 10HZ(100ms) */
+	conf.odr = BMP280_ODR_62_5_MS;
 	rslt = bmp280_set_config(&conf, &bmp);
 	print_rslt(" bmp280_set_config status", rslt);
 
 	/* Always set the power mode after setting the configuration */
 	rslt = bmp280_set_power_mode(BMP280_NORMAL_MODE, &bmp);
 	print_rslt(" bmp280_set_power_mode status", rslt);
+	
+		
+	fifo_init(&pres_fifo, pres_fifo_buffer, PRES_HIST_BUFFER_LEN);
 }
 
 void alt_set_zero(double zeroAlt)
 {
 	zeroAltitude = zeroAlt;
+}
+
+void alt_set_current_to_zero()
+{
+	alt_set_zero(pres2alt(pressure));
 }
 
 
@@ -79,6 +98,15 @@ void alt_update()
 	bmp280_get_uncomp_data(&uncomp_data, &bmp);
 	bmp280_get_comp_temp_double(&temperature, uncomp_data.uncomp_temp, &bmp);
 	bmp280_get_comp_pres_double(&pressure, uncomp_data.uncomp_press, &bmp);
+	
+	
+	if(fifo_is_full(&pres_fifo))
+	{
+		uint32_t trashbin;
+		fifo_pull_uint32(&pres_fifo, &trashbin);
+	}
+	float_conv.float_var = pressure;
+	fifo_push_uint32(&pres_fifo, float_conv.uint_var);
 }
 
 
@@ -94,22 +122,58 @@ double alt_get_temperature()
 
 double alt_get_current_altitude()
 {
+	return pres2alt(pressure) - zeroAltitude;
+}
+
+double pres2alt(double pres)
+{
+	//https://physics.stackexchange.com/questions/333475/how-to-calculate-altitude-from-current-temperature-and-pressure
 	
+	double p0 = 101325; //Sea level pressure in Pa
+	return 44330 * (1-pow((pres/p0),(1.0/5.255)));
 }
 
 double alt_get_smooth_altitude()
 {
-	
+	double average = 0;
+	for (uint16_t i = 0; i < fifo_get_used_size(&pres_fifo); i++)
+	{
+		uint16_t index = (i + pres_fifo.read_index) % PRES_HIST_BUFFER_LEN;
+		float_conv.uint_var = pres_fifo_buffer[index].word;
+		average += float_conv.float_var/fifo_get_used_size(&pres_fifo);
+	}
+	return pres2alt(average) - zeroAltitude;
 }
 
-double alt_get_current_vvel()
-{
+//dt is time between calls to alt_update();
+double alt_get_current_vvel(double dt)
+{;
+	uint16_t lastindex = mod(pres_fifo.write_index-2, PRES_HIST_BUFFER_LEN);
+	uint16_t index = mod(pres_fifo.write_index-1, PRES_HIST_BUFFER_LEN);
+	float_conv.uint_var = pres_fifo_buffer[index].word;
+	double this_alt = pres2alt(float_conv.float_var)-zeroAltitude;
+	float_conv.uint_var = pres_fifo_buffer[lastindex].word;
+	double last_alt = pres2alt(float_conv.float_var)-zeroAltitude;
 	
+	return (this_alt-last_alt)/(dt*fifo_get_used_size(&pres_fifo));
 }
 
-double alt_get_smooth_vvel()
+//dt is time between calls to alt_update();
+double alt_get_smooth_vvel(double dt)
 {
-	
+	double average = 0;
+	for (uint16_t i = 1; i < fifo_get_used_size(&pres_fifo); i++)
+	{
+		uint16_t lastindex = (i - 1 + pres_fifo.read_index) % PRES_HIST_BUFFER_LEN;
+		uint16_t index = (i + pres_fifo.read_index) % PRES_HIST_BUFFER_LEN;
+		float_conv.uint_var = pres_fifo_buffer[index].word;
+		double this_alt = pres2alt(float_conv.float_var)-zeroAltitude;
+		float_conv.uint_var = pres_fifo_buffer[lastindex].word;
+		double last_alt = pres2alt(float_conv.float_var)-zeroAltitude;
+		
+		average += (this_alt-last_alt);
+	}
+	return average/(dt*fifo_get_used_size(&pres_fifo));
 }
 
 /*!
@@ -207,4 +271,10 @@ void print_rslt(const char api_name[], int8_t rslt)
 			printf("Error [%d] : Unknown error code\r\n", rslt);
 		}
 	}
+}
+
+uint16_t mod(uint16_t a, uint16_t b)
+{
+	int32_t r = (int32_t)a % (int32_t)b;
+	return (uint16_t)(r < 0 ? r + b : r);
 }

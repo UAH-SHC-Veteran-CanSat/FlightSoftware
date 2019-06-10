@@ -99,6 +99,10 @@ int main (void)
 	wdt_reset();
 
 	alt_init();
+	
+	delay_ms(500);
+	alt_update();
+	alt_set_current_to_zero();
 
 	printf("\nInitialization Complete!\n\n\n");
 	printf("Testing float print %f\n",420.69);
@@ -132,7 +136,13 @@ int main (void)
 		
 //		printf("hi\n");
 		if(is_command_ready()){
-			printf("%s\n",get_command());
+			char* cmd = get_command();
+			if(strcmp(cmd,"CAL_ALT")==0)
+			{
+				printf("Calibrating altitude\n");
+				alt_set_current_to_zero();
+			}
+			printf("CMD RX: %s\n",cmd);
 		}
 		gps_update();
 // 		printf("time:%f\n",gps_get_time());
@@ -142,9 +152,9 @@ int main (void)
 // 		printf("sats:%u\n\n",gps_get_sats());
 
 		printf("\n\n\n\n");
-		delay_ms(100);
+		delay_ms(1000);
 		newTime = gps_get_time();
-		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
+//		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		//printf("temperature: %f\n\n",getTemperature());
 
 		
@@ -156,8 +166,11 @@ int main (void)
 		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
 		alt_update();
+	
 		
-		printf("temp: %f, pres: %f\n",alt_get_temperature(), alt_get_pressure());
+		printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
+		double currAlt = alt_get_current_altitude();
+		printf("alt: %f\n",currAlt);
 
 		if (state == 0){
 			printf("Flight State 0\n");
