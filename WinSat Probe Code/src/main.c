@@ -151,16 +151,19 @@ int main (void)
 			printf("CMD RX: %s\n",cmd);
 		}
 		gps_update();
-// 		printf("time:%f\n",gps_get_time());
+ 		//printf("time:%f\n",gps_get_time());
 // 		printf("lat :%f\n",gps_get_latitude());
 // 		printf("lon :%f\n",gps_get_longitude());
 // 		printf("alt :%f\n",gps_get_altitude());
 // 		printf("sats:%u\n\n",gps_get_sats());
 
-		printf("\n\n\n\n");
-		delay_ms(1000);
+		//printf("\n\n\n\n");
+		delay_ms(100);
 		wdt_reset();
+		printf("%lu\n",timekeeper_get_millis());
 		newTime = gps_get_time();
+		timekeeper_refine((uint32_t)newTime);
+		//printf("Seconds: %u\n",timekeeper_get_sec());
 //		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		//printf("temperature: %f\n\n",getTemperature());
 		
@@ -168,19 +171,19 @@ int main (void)
 		
 		imu_update();
 		
-		printf("2591,0,0,0,0,0,0,0,0,0,0,0,%.0f,%.0f,00,PRELAUNCH,%.0f\n",imu_pitch(), imu_roll(), imu_heading());
+		//printf("2591,0,0,0,0,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",gps_get_time(),gps_get_latitude(),gps_get_longitude(),gps_get_altitude(),gps_get_sats(),imu_pitch(), imu_roll(), imu_heading());
 		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
 		alt_update();
 	
 
-		printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
+		//printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
 		double currAlt = alt_get_current_altitude();
-		printf("alt: %f\n",currAlt);
-		printf("temp: %f, pres: %f\n",  alt_get_temperature(), alt_get_pressure());
+		//printf("alt: %f\n",currAlt);
+		//printf("temp: %f, pres: %f\n",  alt_get_temperature(), alt_get_pressure());
 
 		if (state == 0){
-			printf("Flight State 0\n");
+			//printf("Flight State 0\n");
 			if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= -10)){ //Work on Velocity later, this will work for now
 			//if ((smooth_altitude <= 500) && (altitudeChange <= -10)){
 				state = 1;
@@ -205,9 +208,5 @@ int main (void)
 			printf("Flight State 3\n");
 			//Buzzer or something
 		}
-//		oldAltitude = getAltitude(initialPressure,pressure,temperature);
-//		smoothOldAltitude = (int32_t)(smoothing_factor * oldAltitude + (1-smoothing_factor)*smoothOldAltitude);
-		oldTime = gps_get_time();
-//		printf("Old Altitude: %li, Old Time: %f\n", smoothOldAltitude, oldTime);
  	}
 }
