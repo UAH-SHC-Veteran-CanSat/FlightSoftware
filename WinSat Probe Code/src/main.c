@@ -139,7 +139,7 @@ int main (void)
 	double oldTime = 0;	
 	
 	while (1){
-		
+		timekeeper_loop_start();
 //		printf("hi\n");
 		if(is_command_ready()){
 			char* cmd = get_command();
@@ -158,7 +158,6 @@ int main (void)
 // 		printf("sats:%u\n\n",gps_get_sats());
 
 		//printf("\n\n\n\n");
-		delay_ms(100);
 		wdt_reset();
 		printf("%lu\n",timekeeper_get_millis());
 		newTime = gps_get_time();
@@ -208,5 +207,6 @@ int main (void)
 			printf("Flight State 3\n");
 			//Buzzer or something
 		}
+		timekeeper_loop_end(1000);
  	}
 }
