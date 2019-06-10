@@ -66,9 +66,10 @@ float getVoltage(void){
 	adc_wait_for_interrupt_flag(&MY_ADC, MY_ADC_CH);
 	adcReading = adc_get_result(&MY_ADC, MY_ADC_CH);
 	adc_disable(&MY_ADC);
-	printf("ADC reading = %u\n", adcReading);
-	float voltage = 0.0004899 * (float)(adcReading) - 0.0856326;	//We have to find these numbers by applying differing voltage, printing ADC readings, and solve equation
-	printf("voltage: %f \n", voltage);
+	//printf("ADC reading = %u\n", adcReading);
+	//float voltage = 0.0009594 * (float)(adcReading);	//We have to find these numbers by applying differing voltage, printing ADC readings, and solve equation
+	float voltage = -0.0005 * (float)(adcReading) + 3.3699;
+	//printf("voltage: %f \n", voltage);
 	return voltage;
 }
 /*
@@ -79,13 +80,21 @@ uint16_t getCurrent(void){
 }
 */
 float getTemperature(void){
+	float A, B, C, D, A1, B1, C1, D1, rRef;
+	//A = -10.2296, B = 2887.62, C = 132336, D = -25025100, A1 = 3.354016*pow(10, -3), B1 = 3.415560*pow(10, -4), C1 = 4.95445*pow(10, -6), D1 = 4.3642236*pow(10, -7), rRef = 20000;
+	A = -14.6337, B = 4791.842, C = -115334, D = -3.730535*pow(10, 6), A1 = 3.354016*pow(10, -3), B1 = 2.569850*pow(10, -4), C1 = 2.620131*pow(10, -6), D1 = 6.3830991*pow(10, -8), rRef = 10000;
 	float voltage = getVoltage();
 	//uint16_t current = getCurrent();
 	//uint16_t resistance = voltage/current;
 	//float resistance = (voltage*10000)/(voltage-3.3);
-	float resistance = 10000 * (3.3/voltage-1);
+	//float resistance = 20000 * (3.3/voltage-1);
+	//float resistance = rRef*(exp(A + (B/298) + (C/pow(298, 2)) + (D/pow(298, 3))));
+	//float resistance = (3.3*4700 - voltage*4700)/voltage;
+	float resistance = ((voltage/3.3)*4700)/(1-(voltage/3.3));
 	//printf("resistance = %f \n", resistance);
-	uint32_t temperature = 3977.0/(log(resistance/(10000.0*pow(2.71828,(-3977.0/298.15)))));
+	//float temperature = 3977.0/(log(resistance/(10000.0*pow(2.71828,(-3977.0/298.15)))));
+	float temperature = pow(A1 + B1*log(resistance/rRef) + C1*pow(log(resistance/rRef), 2) + D1*pow(log(resistance/rRef), 3), -1);
+	temperature = temperature - 273.15;
 	//float temperature = pow((.003351016+.0002569850*log(resistance/10000)+.000002620131*pow(log(resistance/10000),2)),-1);
 	return temperature;	
 }

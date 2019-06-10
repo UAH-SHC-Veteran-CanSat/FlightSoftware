@@ -45,6 +45,7 @@
 int main (void)
 {
 	/* Insert system clock initialization code here (sysclk_init()). */
+	struct pwm_config pwm_cfg;
 
 	sysclk_init();
 	
@@ -85,7 +86,9 @@ int main (void)
 	wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_1KCLK);
 	//wdt_enable();
 	
+	pwm_init(&pwm_cfg, PWM_TCE0, PWM_CH_C, 500);
 
+	pwm_start(&pwm_cfg, 50);
 	
 
 	TCE0.CTRLA = 0b00000110;
@@ -156,7 +159,6 @@ int main (void)
 		newTime = gps_get_time();
 //		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		//printf("temperature: %f\n\n",getTemperature());
-
 		
 /*		printf("temperature: %f\n\n",getTemperature());*/
 		
@@ -167,10 +169,11 @@ int main (void)
 		
 		alt_update();
 	
-		
+
 		printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
 		double currAlt = alt_get_current_altitude();
 		printf("alt: %f\n",currAlt);
+		printf("temp: %f, pres: %f\n",  alt_get_temperature(), alt_get_pressure());
 
 		if (state == 0){
 			printf("Flight State 0\n");
