@@ -190,7 +190,7 @@ int main (void)
 		
 		if(lastSec != timekeeper_get_sec())
 		{
-			uint32_t rate = rpm_get_rate(timekeeper_get_millis());
+			uint32_t rate = rpm_get_rate();
 			printf("rate: %lu\n",rate);
 			lastSec = timekeeper_get_sec();
 			printf("2591,%lu,%lu,%.0f,%.0f,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude(),gps_get_sats(),imu_pitch()*10, imu_roll()*10, imu_heading()*10);

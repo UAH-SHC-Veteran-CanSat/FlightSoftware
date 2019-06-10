@@ -9,13 +9,13 @@
 
 static void rpm_callback(AC_t *ac, uint8_t channel, enum ac_status_t status);
 
-volatile uint32_t counts = 0;
-uint32_t last_rate_millis = 0;
+volatile uint32_t last_rate_millis = 0;
+volatile uint32_t current_rate_millis = 0;
 
 static void rpm_callback(AC_t *ac, uint8_t channel, enum ac_status_t status)
 {
-	counts++;
-	printf("Woah\n");
+	last_rate_millis = current_rate_millis;
+	current_rate_millis = timekeeper_get_millis();
 }
 
 void rpm_init()
@@ -40,28 +40,16 @@ void rpm_init()
 	
 }
 
-void rpm_clear_counts()
+uint32_t rpm_get_rate()
 {
-	counts = 0;
-}
-
-uint32_t rpm_peek_counts()
-{
-	return counts;
-}
-
-uint32_t rpm_pull_counts()
-{
-	uint32_t returnCounts = counts;
-	counts = 0;
-	return returnCounts;
-}
-
-uint32_t rpm_get_rate(uint32_t call_millis)
-{
-	uint32_t counts = rpm_pull_counts();
-	uint32_t dt = call_millis - last_rate_millis;
-	last_rate_millis = call_millis;
-	return (counts*1000*60)/dt;
+	if(timekeeper_get_millis() < current_rate_millis + 5000)
+	{
+		return 60000/(current_rate_millis-last_rate_millis);
+	}
+	else
+	{
+		return 0;
+	}
+	
 	
 }

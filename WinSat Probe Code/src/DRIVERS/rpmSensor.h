@@ -7,6 +7,7 @@
 
 #include <asf.h>
 #include <string.h>
+#include "timekeeper.h"
 
 #ifndef RPMSENSOR_H_
 #define RPMSENSOR_H_
@@ -14,13 +15,12 @@
 //23/64 of 3.3v
 #define VOLTAGE_SCALED_VALUE 21
 
+//Any rotation with a period smaller than this value will be assumed to be zero
+#define MIN_ROTATION_PERIOD 5000
+
 void rpm_init();
 
-void rpm_clear_counts();
-uint32_t rpm_peek_counts();
-uint32_t rpm_pull_counts();
-
-uint32_t rpm_get_rate(uint32_t call_millis);
+uint32_t rpm_get_rate();
 
 
 
