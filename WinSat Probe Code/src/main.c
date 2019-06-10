@@ -190,10 +190,8 @@ int main (void)
 		
 		if(lastSec != timekeeper_get_sec())
 		{
-			uint32_t rate = rpm_get_rate();
-			printf("rate: %lu\n",rate);
 			lastSec = timekeeper_get_sec();
-			printf("2591,%lu,%lu,%.0f,%.0f,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude(),gps_get_sats(),imu_pitch()*10, imu_roll()*10, imu_heading()*10);
+			printf("2591,%lu,%lu,%.0f,%.0f,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,ACTIVE,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude(),gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), imu_heading()*10);
 			packets++;
 		}
 		
@@ -201,8 +199,8 @@ int main (void)
 		
 		alt_update();
 		
-		fin1_set_pos((timekeeper_get_millis()/10)%1000);
-		fin2_set_pos((timekeeper_get_millis()/10)%1000);
+		fin1_set_pos((timekeeper_get_millis()/20)%1000);
+		fin2_set_pos((timekeeper_get_millis()/21)%1000);
 	
 
 		//printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
