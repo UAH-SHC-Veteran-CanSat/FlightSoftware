@@ -38,6 +38,7 @@
 //#include "DRIVERS/pressure.h"
 #include "DRIVERS/temperature.h"
 #include "DRIVERS/IMU.h"
+#include "DRIVERS/servo.h"
 
 
 
@@ -106,14 +107,17 @@ int main (void)
 
 	alt_init();
 	
-	delay_ms(500);
+	delay_ms(20);
 	alt_update();
 	alt_set_current_to_zero();
 
 	printf("\nInitialization Complete!\n\n\n");
 	printf("Testing float print %f\n",420.69);
 	
-	delay_ms(500);
+	delay_ms(20);
+	
+	fin12_init();
+	fin12_start();
 	
 	
 
@@ -139,6 +143,8 @@ int main (void)
 	double oldTime = 0;
 	
 	uint32_t packets = 0;
+	
+	uint32_t lastSec = 0;
 	
 	while (1){
 		timekeeper_loop_start();
@@ -187,11 +193,18 @@ int main (void)
 		
 		imu_update();
 		
-		printf("2591,%lu,%lu,%.0f,%.0f,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude(),gps_get_sats(),imu_pitch()*10, imu_roll()*10, imu_heading()*10);
-		packets++;
+		if(lastSec != timekeeper_get_sec())
+		{
+			lastSec = timekeeper_get_sec();
+			printf("2591,%lu,%lu,%.0f,%.0f,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude(),gps_get_sats(),imu_pitch()*10, imu_roll()*10, imu_heading()*10);
+			packets++;
+		}
+		
 		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
 		alt_update();
+		
+		fin12_set_duty(packets%100);
 	
 
 		//printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
@@ -225,6 +238,6 @@ int main (void)
 			printf("Flight State 3\n");
 			//Buzzer or something
 		}
-		timekeeper_loop_end(1000);
+		timekeeper_loop_end(100);
  	}
 }
