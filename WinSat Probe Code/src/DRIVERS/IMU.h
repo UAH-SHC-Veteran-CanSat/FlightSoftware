@@ -8,7 +8,6 @@
 #include <asf.h>
 #include <string.h>
 #include "DRIVERS/bno055.h"
-#include "libfixmatrix/fixquat.h"
 
 
 #ifndef IMU_H_

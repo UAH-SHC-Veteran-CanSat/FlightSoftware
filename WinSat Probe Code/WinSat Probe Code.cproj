@@ -137,7 +137,7 @@
     <ResetRule>0</ResetRule>
     <EraseKey />
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
-    <avrtoolserialnumber>J41800086774</avrtoolserialnumber>
+    <avrtoolserialnumber>J41800010510</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9746</avrdeviceexpectedsignature>
     <avrtoolinterface>PDI</avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
@@ -148,7 +148,7 @@
         <InterfaceName>PDI</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800086774</ToolNumber>
+      <ToolNumber>J41800010510</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterfaceclock>4000000</avrtoolinterfaceclock>
@@ -399,7 +399,6 @@
     <Folder Include="src\ASF\xmega\utils\preprocessor\" />
     <Folder Include="src\config\" />
     <Folder Include="src\DRIVERS" />
-    <Folder Include="src\libfixmatrix" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ASF\common\services\serial\serial.h">
@@ -471,91 +470,16 @@
     <Compile Include="src\DRIVERS\servo.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\DRIVERS\timekeeper.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\timekeeper.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\DRIVERS\usart.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\DRIVERS\usart.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fix16.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fix16.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fix16_exp.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fix16_sqrt.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fix16_str.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fix16_trig.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fix16_trig_sin_lut.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixarray.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixarray.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixmath.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixmatrix.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixmatrix.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixquat.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixquat.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixquat_unittests.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixstring.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixstring.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixvector2d.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixvector2d.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixvector3d.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fixvector3d.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fract32.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\fract32.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\int64.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\uint32.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\uint32.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\libfixmatrix\unittests.h">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\asf.h">
@@ -786,18 +710,6 @@
     <Compile Include="src\main.c">
       <SubType>compile</SubType>
     </Compile>
-    <None Include="src\libfixmatrix\fix16.hpp">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\libfixmatrix\FUNCTIONS.rst">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\libfixmatrix\libfixmath.cbp">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\libfixmatrix\Makefile">
-      <SubType>compile</SubType>
-    </None>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

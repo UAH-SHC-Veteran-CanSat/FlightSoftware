@@ -31,6 +31,7 @@
 #include <asf.h>
 #include <math.h>
 #include <string.h>
+#include "DRIVERS/timekeeper.h"
 #include "DRIVERS/usart.h"
 #include "DRIVERS/GPS.h"
 #include "DRIVERS/altimeter.h"
@@ -73,6 +74,8 @@ int main (void)
 	
 	gps_init(0.0);
 	
+	timekeeper_init();
+	
 	
 	irq_initialize_vectors();
 	cpu_irq_enable();
@@ -83,8 +86,8 @@ int main (void)
 	sysclk_enable_peripheral_clock(&ADCA);
 	adc_init();
 	
-	wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_1KCLK);
-	//wdt_enable();
+	wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_4KCLK); // The watchdog timer will reset the MCU if wdt_reset() is not called faster than the timeout period
+	wdt_enable();
 	
 	pwm_init(&pwm_cfg, PWM_TCE0, PWM_CH_C, 500);
 
@@ -156,6 +159,7 @@ int main (void)
 
 		printf("\n\n\n\n");
 		delay_ms(1000);
+		wdt_reset();
 		newTime = gps_get_time();
 //		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
 		//printf("temperature: %f\n\n",getTemperature());
