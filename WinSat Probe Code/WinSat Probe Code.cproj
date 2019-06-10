@@ -677,12 +677,6 @@
     <None Include="src\config\conf_twim.h">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="src\DRIVERS\altitude.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\DRIVERS\altitude.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\DRIVERS\bmp280.c">
       <SubType>compile</SubType>
     </Compile>
@@ -696,9 +690,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\DRIVERS\bno055.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\DRIVERS\bno055_support.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\DRIVERS\temperature.c">
