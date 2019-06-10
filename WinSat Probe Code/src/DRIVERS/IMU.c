@@ -65,6 +65,11 @@ void imu_update()
 	bno055_get_gyro_calib_stat(&gyro_calib);
 	bno055_get_mag_calib_stat(&mag_calib);
 	bno055_get_sys_calib_stat(&sys_calib);
+	
+	if (accel_calib == 0 && mag_calib == 0 && gyro_calib == 0 && sys_calib == 0)
+	{
+		printf("IMU Completely uncalibrated\n");
+	}
 }
 
 

@@ -136,19 +136,36 @@ int main (void)
 	int32_t altitudeArray[10];
 	int32_t altitudeChange = 0;
 	double newTime = 0;
-	double oldTime = 0;	
+	double oldTime = 0;
+	
+	uint32_t packets = 0;
 	
 	while (1){
 		timekeeper_loop_start();
 //		printf("hi\n");
 		if(is_command_ready()){
 			char* cmd = get_command();
+			printf("CMD RX: %s\n",cmd);
 			if(strcmp(cmd,"CAL_ALT")==0)
 			{
 				printf("Calibrating altitude\n");
 				alt_set_current_to_zero();
 			}
-			printf("CMD RX: %s\n",cmd);
+			if(strcmp(cmd,"CAL_IMU")==0)
+			{
+				printf("Calibrating IMU\n");
+				printf("IMU CALIB STAT (0 to 3, 0 is bad, 3 is good):\n");
+				printf("ACC: %u\n",imu_accel_cal());
+				printf("GYR: %u\n",imu_gyro_cal());
+				printf("MAG: %u\n",imu_mag_cal());
+				printf("SYS: %u\n",imu_sys_cal());
+			}
+			if(strcmp(cmd,"RESET")==0)
+			{
+				printf("Soft Resetting\n");
+				wdt_reset_mcu();
+			}
+			
 		}
 		gps_update();
  		//printf("time:%f\n",gps_get_time());
@@ -170,7 +187,8 @@ int main (void)
 		
 		imu_update();
 		
-		printf("2591,%lu,0,0,0,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",timekeeper_get_sec(),gps_get_time(),gps_get_latitude(),gps_get_longitude(),gps_get_altitude(),gps_get_sats(),imu_pitch(), imu_roll(), imu_heading());
+		printf("2591,%lu,%lu,%.0f,%.0f,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude(),gps_get_sats(),imu_pitch()*10, imu_roll()*10, imu_heading()*10);
+		packets++;
 		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
 		alt_update();
