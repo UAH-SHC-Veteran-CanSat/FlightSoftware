@@ -52,6 +52,9 @@
  * running the ASF driver selector tool. Any changes will be discarded.
  */
 
+// From module: AC - Analog Comparator
+#include <ac.h>
+
 // From module: ADC - XMEGA A/AU Implementation
 #include <adc.h>
 
