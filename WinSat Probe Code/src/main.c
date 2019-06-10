@@ -159,7 +159,7 @@ int main (void)
 
 		//printf("\n\n\n\n");
 		wdt_reset();
-		printf("%lu\n",timekeeper_get_millis());
+		//printf("%lu\n",timekeeper_get_millis());
 		newTime = gps_get_time();
 		timekeeper_refine((uint32_t)newTime);
 		//printf("Seconds: %u\n",timekeeper_get_sec());
@@ -170,7 +170,7 @@ int main (void)
 		
 		imu_update();
 		
-		//printf("2591,0,0,0,0,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",gps_get_time(),gps_get_latitude(),gps_get_longitude(),gps_get_altitude(),gps_get_sats(),imu_pitch(), imu_roll(), imu_heading());
+		printf("2591,%lu,0,0,0,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,0,PRELAUNCH,%.0f\n",timekeeper_get_sec(),gps_get_time(),gps_get_latitude(),gps_get_longitude(),gps_get_altitude(),gps_get_sats(),imu_pitch(), imu_roll(), imu_heading());
 		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
 		alt_update();

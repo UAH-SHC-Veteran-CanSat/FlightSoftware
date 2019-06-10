@@ -38,9 +38,9 @@ void timekeeper_refine(uint32_t utc_time)
 	}
 	else if(last_utc_time != utc_time)
 	{
-		printf("Actual time: %lu, Guessed time: %lu, ", (utc_time-last_utc_time)*1000, (millis-last_utc_millis));	
+		//printf("Actual time: %lu, Guessed time: %lu, ", (utc_time-last_utc_time)*1000, (millis-last_utc_millis));	
 		period = (uint32_t)((1.0-TK_ADJUST_SPEED)*period + TK_ADJUST_SPEED*period * ((double)(millis-last_utc_millis))/((double)((utc_time-last_utc_time)*1000)));
-		printf("New period: %u\n",period);
+		//printf("New period: %u\n",period);
 		tc_write_period(&TK_TC, period);
 		last_utc_time = utc_time;
 		last_utc_millis = millis;
