@@ -19,34 +19,27 @@
 
 #include "servo.h"
 
+void servos_stop();
+void servos_start();
 
-void fin1_init(void);
+void fin1_init(uint16_t minPos, uint16_t maxPos);
 
-void fin1_stop();
+void fin1_disable();
+void fin1_set_duty(uint16_t duty);
+void fin1_set_pos(uint16_t permille);
 
-void fin1_start();
+void fin2_init(uint16_t minPos, uint16_t maxPos);
 
-void fin1_set_duty(uint8_t duty);
+void fin2_disable();
+void fin2_set_duty(uint16_t duty);
+void fin2_set_pos(uint16_t permille);
 
-void fin2_init(void);
+void release_init(uint16_t minPos, uint16_t maxPos);
 
-void fin2_stop();
-
-void fin2_start();
-
-void fin2_set_duty(uint8_t duty);
-
-void fin12_init(void);
-
-void fin12_stop();
-
-void fin12_start();
-
-void fin12_set_duty(uint8_t duty);
-
-
-
-
+void release_open(); //this drops the cansat
+void release_close(); //this grabs the cansat
+void release_limp(); //this takes power away from the release servo
+void release_set_duty(uint16_t duty);
 
 
 

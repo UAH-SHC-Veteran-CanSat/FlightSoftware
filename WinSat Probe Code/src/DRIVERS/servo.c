@@ -7,72 +7,123 @@
 
 #include "servo.h"
 
-struct pwm_config fin1_cfg;
-struct pwm_config fin2_cfg;
-struct pwm_config release_cfg;
+uint16_t fin1_min = 0;
+uint16_t fin1_max = 10000;
 
-void fin1_init(void) {
+uint16_t fin2_min = 0;
+uint16_t fin2_max = 10000;
+
+uint16_t release_min = 0;
+uint16_t release_max = 10000;
+
+void servos_stop()
+{
+	tc_write_clock_source(&TCE0, TC_CLKSEL_OFF_gc);
+}
+
+void servos_start()
+{
+	tc_write_clock_source(&TCE0, TC_CLKSEL_DIV64_gc);
+}
+
+void fin1_init(uint16_t minPos, uint16_t maxPos) 
+{
+	fin1_min = minPos;
+	fin1_max = maxPos;
 	
-	pwm_init(&fin1_cfg, PWM_TCE0, PWM_CH_B, 250); //Supposedly 250 hz but I don't think it really is
-}
-
-void fin1_stop()
-{
-	pwm_stop(&fin1_cfg);
-}
-
-void fin1_start()
-{
-	pwm_start(&fin1_cfg, 50);
-}
-
-void fin1_set_duty(uint8_t duty)
-{
-	pwm_set_duty_cycle_percent(&fin1_cfg, duty);
-}
-
-void fin2_init(void) {
+	PORTE.DIRSET = 0b00001110;
 	
-	pwm_init(&fin2_cfg, PWM_TCE0, PWM_CH_C, 250); //Supposedly 250 hz but I don't think it really is
+	sysclk_enable_peripheral_clock(&TCE0);
+	
+	tc_enable(&TCE0);
+	tc_set_wgm(&TCE0, TC_WG_SS);
+	tc_write_period(&TCE0, 10000);
+	tc_write_cc(&TCE0, TC_CCB, (fin1_max+fin1_min)/2); 
+	tc_enable_cc_channels(&TCE0,TC_CCBEN); 
 }
 
-void fin2_stop()
+void fin1_disable()
 {
-	pwm_stop(&fin2_cfg);
+	fin1_set_duty(0);
 }
 
-void fin2_start()
+void fin1_set_duty(uint16_t duty)
 {
-	pwm_start(&fin2_cfg, 50);
+	tc_write_cc(&TCE0, TC_CCB, duty);
 }
 
-void fin2_set_duty(uint8_t duty)
+void fin1_set_pos(uint16_t permille)
 {
-	pwm_set_duty_cycle_percent(&fin2_cfg, duty);
-}
-
-void fin12_init(void) 
-{
-	fin1_init();
-	fin2_init();
-}
-
-void fin12_stop()
-{
-	fin1_stop();
-	fin2_stop();
-}
-
-void fin12_start()
-{
-	fin1_start();
-	fin2_start();
-}
-
-void fin12_set_duty(uint8_t duty)
-{
+	uint16_t duty = (uint16_t)( fin1_min + ((uint32_t)(fin1_max-fin1_min)*permille)/1000);
 	fin1_set_duty(duty);
+}
+
+void fin2_init(uint16_t minPos, uint16_t maxPos)
+{
+	fin2_min = minPos;
+	fin2_max = maxPos;
+	
+	PORTE.DIRSET = 0b00001110;
+	
+	sysclk_enable_peripheral_clock(&TCE0);
+	
+	tc_enable(&TCE0);
+	tc_set_wgm(&TCE0, TC_WG_SS);
+	tc_write_period(&TCE0, 10000);
+	tc_write_cc(&TCE0, TC_CCC, (fin2_max+fin2_min)/2);
+	tc_enable_cc_channels(&TCE0,TC_CCCEN);
+}
+
+void fin2_disable()
+{
+	fin2_set_duty(0);
+}
+
+void fin2_set_duty(uint16_t duty)
+{
+	tc_write_cc(&TCE0, TC_CCC, duty);
+}
+
+void fin2_set_pos(uint16_t permille)
+{
+	uint16_t duty = (uint16_t)( fin2_min + ((uint32_t)(fin2_max-fin2_min)*permille)/1000);
 	fin2_set_duty(duty);
+}
+
+
+void release_init(uint16_t minPos, uint16_t maxPos)
+{
+	release_min = minPos;
+	release_max = maxPos;
+	
+	PORTE.DIRSET = 0b00001110;
+	
+	sysclk_enable_peripheral_clock(&TCE0);
+	
+	tc_enable(&TCE0);
+	tc_set_wgm(&TCE0, TC_WG_SS);
+	tc_write_period(&TCE0, 10000);
+	tc_write_cc(&TCE0, TC_CCD, 0);
+	tc_enable_cc_channels(&TCE0,TC_CCDEN);
+}
+
+void release_open()
+{
+	release_set_duty(release_min);
+}
+
+void release_close()
+{
+	release_set_duty(release_max);
+}
+void release_limp()
+{
+	release_set_duty(0);
+}
+
+void release_set_duty(uint16_t duty)
+{
+	tc_write_cc(&TCE0, TC_CCD, duty);
 }
 
 

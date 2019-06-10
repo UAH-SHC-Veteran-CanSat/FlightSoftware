@@ -89,15 +89,6 @@ int main (void)
 	
 	wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_4KCLK); // The watchdog timer will reset the MCU if wdt_reset() is not called faster than the timeout period
 	wdt_enable();
-	
-	pwm_init(&pwm_cfg, PWM_TCE0, PWM_CH_C, 500);
-
-	pwm_start(&pwm_cfg, 50);
-	
-
-	TCE0.CTRLA = 0b00000110;
-	TCE0.PER = 121;
-	TCE0.INTCTRLA = TC_OVFINTLVL_HI_gc;
 
 	wdt_reset();
 
@@ -116,8 +107,10 @@ int main (void)
 	
 	delay_ms(20);
 	
-	fin12_init();
-	fin12_start();
+	fin1_init(600, 900);
+	fin2_init(600, 900);
+	release_init(500, 1000); //Set these to the actual values needed after we get the servo connector on
+	servos_start();
 	
 	
 
@@ -204,7 +197,8 @@ int main (void)
 		
 		alt_update();
 		
-		fin12_set_duty(packets%100);
+		fin1_set_pos((timekeeper_get_millis()/10)%1000);
+		fin2_set_pos((timekeeper_get_millis()/10)%1000);
 	
 
 		//printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
