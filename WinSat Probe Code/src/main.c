@@ -99,7 +99,7 @@ int main (void)
 
 	alt_init();
 	
-	delay_ms(250);
+	delay_ms(250); //Wait for altitude data before setting zero
 	alt_update();
 	alt_set_current_to_zero();
 
