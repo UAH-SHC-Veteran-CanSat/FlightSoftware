@@ -466,6 +466,12 @@
     <Compile Include="src\DRIVERS\altimeter.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\DRIVERS\cmd_utils.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\cmd_utils.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\DRIVERS\GPS.c">
       <SubType>compile</SubType>
     </Compile>

@@ -54,6 +54,7 @@ void fin1_set_duty(uint16_t duty)
 
 void fin1_set_pos(uint16_t permille)
 {
+	permille = min(permille, 1000);
 	uint16_t duty = (uint16_t)( fin1_min + ((uint32_t)(fin1_max-fin1_min)*permille)/1000);
 	fin1_set_duty(duty);
 }
@@ -86,6 +87,7 @@ void fin2_set_duty(uint16_t duty)
 
 void fin2_set_pos(uint16_t permille)
 {
+	permille = min(permille, 1000);
 	uint16_t duty = (uint16_t)( fin2_min + ((uint32_t)(fin2_max-fin2_min)*permille)/1000);
 	fin2_set_duty(duty);
 }
@@ -109,12 +111,12 @@ void release_init(uint16_t minPos, uint16_t maxPos)
 
 void release_open()
 {
-	release_set_duty(release_min);
+	release_set_duty(release_max);
 }
 
 void release_close()
 {
-	release_set_duty(release_max);
+	release_set_duty(release_min);
 }
 void release_limp()
 {

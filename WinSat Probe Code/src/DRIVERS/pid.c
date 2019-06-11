@@ -31,6 +31,11 @@ void pid_set_setpoint(double setsetpoint)
 	setpoint = setsetpoint;
 }
 
+void pid_clear_integral()
+{
+	errSum = 0;
+}
+
 void pid_update (double heading, uint32_t millis)
 {
 	double dt = ((double)(millis - last_millis))/1000.0;
@@ -40,6 +45,7 @@ void pid_update (double heading, uint32_t millis)
 	errSum += (error * dt);
 	double dErr = (error - lastErr) / dt;
 	
+	//printf("P: = %f I: %f D: %f\n",kp*error, ki*errSum, kd*dErr);
 	output = kp*error + ki*errSum + kd*dErr;
 	
 	last_millis = millis;
@@ -48,5 +54,6 @@ void pid_update (double heading, uint32_t millis)
 
 uint16_t pid_output()
 {
-	return -output*2 + 500; // add 500 so it is centered
+	return (uint16_t)(max(min(-output+500.0,1000.0),0.0)); // add 500 so it is centered
+
 }
