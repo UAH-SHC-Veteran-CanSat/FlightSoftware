@@ -122,6 +122,7 @@ int main (void)
 	uint32_t lastSec = 0;
 	double newTime = 0;
 	double maxAltitude = 0;
+	double initialAltitude = alt_get_current_altitude();
 	
 	uint32_t packets = 0;
 	
@@ -184,6 +185,14 @@ int main (void)
 			if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= -10)){ //Work on Velocity later, this will work for now
 			//if ((smooth_altitude <= 500) && (altitudeChange <= -10)){
 				state = 1;
+				//Turn Camera On
+				PORTC.DIRSET = 0b00010000;
+				PORTC.OUTSET = 0b00010000;
+//				if (timekeeper_get_millis()%600 >= 2) {
+//					PORTC.OUTCLR = 0b00010000;
+//				}
+				delay_ms(600);
+				PORTC.OUTCLR = 0b00010000;
 			}
 			if (smooth_altitude > maxAltitude) {
 				maxAltitude = smooth_altitude;
@@ -191,18 +200,36 @@ int main (void)
 		}
 		if (state == 1){
 			printf("Flight State 1\n");
-// 			if (smooth_altitude-initialAltitude<=450){
-// 				state = 2;
-// 			}
+			
+ 			if (smooth_altitude-initialAltitude<=450){
+ 				state = 2;
+ 			}
 		}
 		if (state == 2){
 			printf("Flight State 2\n");
-// 			if ((smooth_altitude - initialAltitude <= 50) /*&& (velocity<=1)*/){
-// 				state = 3;
-// 			}
+ 			if ((smooth_altitude - initialAltitude <= 50) /*&& (velocity<=1)*/){
+				state = 3;
+				//Turn Camera Off
+				PORTC.DIRSET = 0b00010000;
+				PORTC.OUTSET = 0b00010000;
+				delay_ms(600);
+				PORTC.OUTCLR = 0b00010000;
+				//Turn Camera On
+				PORTC.DIRSET = 0b00010000;
+				PORTC.OUTSET = 0b00010000;
+				delay_ms(600);
+				PORTC.OUTCLR = 0b00010000;
+ 			}
 		}
 		if (state == 3){
 			printf("Flight State 3\n");
+			if ((timekeeper_get_millis()%500) < 250) {
+				PORTD.DIRSET = 0b00010000;
+				PORTD.OUTSET = 0b00010000;
+			}
+			else {
+				PORTD.OUTCLR = 0b00010000;
+			}
 			//Buzzer or something
 		}
 		
