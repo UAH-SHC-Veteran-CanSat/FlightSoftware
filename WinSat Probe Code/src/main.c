@@ -40,6 +40,7 @@
 #include "DRIVERS/IMU.h"
 #include "DRIVERS/servo.h"
 #include "DRIVERS/rpmSensor.h"
+#include "DRIVERS/pid.h"
 
 
 //Thomas' Code---------------------------------------------------------------------------------------------------
@@ -104,7 +105,7 @@ int main (void)
 	alt_set_current_to_zero();
 
 	printf("\nInitialization Complete!\n\n\n");
-	printf("Testing float print %f\n",420.69);
+	printf("Testing float print %f\n",420.69); 
 	
 	delay_ms(20);
 	
@@ -113,7 +114,7 @@ int main (void)
 	release_init(500, 1000); //Set these to the actual values needed after we get the servo connector on
 	servos_start();
 	
-
+	pid_init(1.0, 0.01, 0.1, 180.0);
 	
 
 // 	/* Insert application code here, after the board has been initialized. */
@@ -171,9 +172,10 @@ int main (void)
 			packets++;
 		}
 		
+		pid_update(imu_heading(),timekeeper_get_millis());
 		
-		fin1_set_pos((timekeeper_get_millis()/10)%1000);
-		fin2_set_pos((timekeeper_get_millis()/10)%1000);
+		fin1_set_pos(pid_output());
+		fin2_set_pos(pid_output());
 	
 
 		double currAlt = alt_get_current_altitude();

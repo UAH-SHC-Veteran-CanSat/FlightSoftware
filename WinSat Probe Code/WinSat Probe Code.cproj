@@ -478,6 +478,12 @@
     <Compile Include="src\DRIVERS\IMU.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\DRIVERS\pid.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\pid.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\DRIVERS\rpmSensor.c">
       <SubType>compile</SubType>
     </Compile>
