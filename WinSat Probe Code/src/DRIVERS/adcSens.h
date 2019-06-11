@@ -11,10 +11,15 @@
 
 #include <asf.h>
 
+#define MY_ADC ADCA
+#define THERM_ADC_CH ADC_CH0
+#define PWR_ADC_CH ADC_CH1
+
 void adc_init(void);
-float getVoltage(void);
+float adc_get_therm_voltage(void);
+float adc_get_pwr_voltage(void);
 //uint16_t getCurrent(void);
-float getTemperature(void);
+float adc_get_temperature(void);
 
 
 

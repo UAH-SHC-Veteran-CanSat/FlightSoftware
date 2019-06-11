@@ -36,7 +36,7 @@
 #include "DRIVERS/GPS.h"
 #include "DRIVERS/altimeter.h"
 //#include "DRIVERS/pressure.h"
-#include "DRIVERS/temperature.h"
+#include "DRIVERS/adcSens.h"
 #include "DRIVERS/IMU.h"
 #include "DRIVERS/servo.h"
 #include "DRIVERS/rpmSensor.h"
@@ -99,7 +99,7 @@ int main (void)
 
 	alt_init();
 	
-	delay_ms(20);
+	delay_ms(250);
 	alt_update();
 	alt_set_current_to_zero();
 
@@ -119,31 +119,17 @@ int main (void)
 // 	/* Insert application code here, after the board has been initialized. */
 	uint8_t state = 0;
 	uint16_t teamID = 2591;
-	int8_t initialPressure = 0;//bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
-	int8_t pressure =  0;//bmp280_get_comp_pres_double(&pres, ucomp_data.uncomp_press, &bmp);
-	int32_t temperature = getTemperature();
-	//int32_t initialAltitude = getAltitude(initialPressure,pressure,temperature);
-	int32_t maxAltitude = 0;
-	int32_t altitude = 0;
-	int32_t oldAltitude = 0;
-	int32_t newAltitude = 0;
-	//int32_t velocity = 0;
-	int32_t smooth_altitude = 0;
-	int32_t smoothOldAltitude = 0;
-	int32_t smoothNewAltitude = 0;
-	double smoothing_factor = 0.50;
-	int32_t altitudeArray[10];
-	int32_t altitudeChange = 0;
+	uint32_t lastSec = 0;
 	double newTime = 0;
-	double oldTime = 0;
+	double maxAltitude = 0;
 	
 	uint32_t packets = 0;
 	
-	uint32_t lastSec = 0;
-	
 	while (1){
 		timekeeper_loop_start();
-//		printf("hi\n");
+		
+		wdt_reset();
+		
 		if(is_command_ready()){
 			char* cmd = get_command();
 			printf("CMD RX: %s\n",cmd);
@@ -168,45 +154,30 @@ int main (void)
 			}
 			
 		}
+		
 		gps_update();
- 		//printf("time:%f\n",gps_get_time());
-// 		printf("lat :%f\n",gps_get_latitude());
-// 		printf("lon :%f\n",gps_get_longitude());
-// 		printf("alt :%f\n",gps_get_altitude());
-// 		printf("sats:%u\n\n",gps_get_sats());
-
-		//printf("\n\n\n\n");
-		wdt_reset();
-		//printf("%lu\n",timekeeper_get_millis());
+		imu_update();
+		alt_update();
+		
 		newTime = gps_get_time();
 		timekeeper_refine((uint32_t)newTime);
-		//printf("Seconds: %u\n",timekeeper_get_sec());
-//		printf("New Altitude: %li, New Time: %f\n", smoothNewAltitude, newTime);
-		//printf("temperature: %f\n\n",getTemperature());
 		
-/*		printf("temperature: %f\n\n",getTemperature());*/
 		
-		imu_update();
 		
 		if(lastSec != timekeeper_get_sec())
 		{
 			lastSec = timekeeper_get_sec();
-			printf("2591,%lu,%lu,%.0f,%.0f,0,0,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,ACTIVE,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude(),gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), imu_heading()*10);
+			printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,ACTIVE,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), imu_heading()*10);
 			packets++;
 		}
 		
-		//printf("CALBRATION STATUSES:  Accel: %u, Gyro: %u, Mag: %u, Sys: %u\n", imu_accel_cal(), imu_gyro_cal(), imu_mag_cal(), imu_sys_cal());
 		
-		alt_update();
-		
-		fin1_set_pos((timekeeper_get_millis()/20)%1000);
-		fin2_set_pos((timekeeper_get_millis()/21)%1000);
+		fin1_set_pos((timekeeper_get_millis()/10)%1000);
+		fin2_set_pos((timekeeper_get_millis()/10)%1000);
 	
 
-		//printf("temp: %f, vvel: %f\n",alt_get_temperature(), alt_get_current_vvel(1));
 		double currAlt = alt_get_current_altitude();
-		//printf("alt: %f\n",currAlt);
-		//printf("temp: %f, pres: %f\n",  alt_get_temperature(), alt_get_pressure());
+		double smooth_altitude = alt_get_smooth_altitude();
 
 		if (state == 0){
 			//printf("Flight State 0\n");
@@ -234,6 +205,8 @@ int main (void)
 			printf("Flight State 3\n");
 			//Buzzer or something
 		}
+		
+		
 		timekeeper_loop_end(100);
  	}
 }
