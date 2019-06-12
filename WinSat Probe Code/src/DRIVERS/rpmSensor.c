@@ -42,7 +42,7 @@ void rpm_init()
 
 uint32_t rpm_get_rate()
 {
-	if(timekeeper_get_millis() < current_rate_millis + 5000)
+	if(timekeeper_get_millis() < current_rate_millis + 5000 && current_rate_millis != last_rate_millis)
 	{
 		return 60000/(current_rate_millis-last_rate_millis);
 	}

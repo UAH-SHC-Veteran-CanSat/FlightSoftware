@@ -69,8 +69,11 @@ float adc_get_therm_voltage(void){
 	adc_disable(&MY_ADC);
 	//printf("ADC reading = %u\n", adcReading);
 	//float voltage = 0.0009594 * (float)(adcReading);	//We have to find these numbers by applying differing voltage, printing ADC readings, and solve equation
+#ifdef OLD_THERM
 	float voltage = -0.0005 * (float)(adcReading) + 3.3699;
-	//printf("voltage: %f \n", voltage);
+#else
+	float voltage = 0.00050354 * (float)(adcReading) - 0.103125;
+#endif
 	return voltage;
 }
 
@@ -96,6 +99,7 @@ uint16_t getCurrent(void){
 }
 */
 float adc_get_temperature(void){
+#ifdef OLD_THERM
 	float A, B, C, D, A1, B1, C1, D1, rRef;
 	//A = -10.2296, B = 2887.62, C = 132336, D = -25025100, A1 = 3.354016*pow(10, -3), B1 = 3.415560*pow(10, -4), C1 = 4.95445*pow(10, -6), D1 = 4.3642236*pow(10, -7), rRef = 20000;
 	A = -14.6337, B = 4791.842, C = -115334, D = -3.730535*pow(10, 6), A1 = 3.354016*pow(10, -3), B1 = 2.569850*pow(10, -4), C1 = 2.620131*pow(10, -6), D1 = 6.3830991*pow(10, -8), rRef = 10000;
@@ -113,4 +117,14 @@ float adc_get_temperature(void){
 	temperature = temperature - 273.15;
 	//float temperature = pow((.003351016+.0002569850*log(resistance/10000)+.000002620131*pow(log(resistance/10000),2)),-1);
 	return temperature;	
+#else
+	float B, r_inf;
+	B = 3977;
+	r_inf = 0.01610568;
+	
+	float voltage = adc_get_therm_voltage();	
+	float resistance = (-1 + 3.3/voltage)*4700;
+	float temperature = B/log(resistance/r_inf)- 273.15;
+	return temperature;	
+#endif
 }

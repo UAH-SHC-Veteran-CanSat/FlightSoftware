@@ -478,6 +478,12 @@
     <Compile Include="src\DRIVERS\altimeter.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\DRIVERS\camAndBuzzer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\camAndBuzzer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\DRIVERS\cmd_utils.c">
       <SubType>compile</SubType>
     </Compile>

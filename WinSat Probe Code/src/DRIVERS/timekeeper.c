@@ -93,7 +93,7 @@ void timekeeper_loop_end(uint32_t loop_period)
 	}
 	else
 	{
-		printf("Period too low, can't keep up");
+		printf("Period too low, can't keep up\nLoop took %lu ms but was set to %lu ms\n", millis-loop_start, loop_period);
 	}
 	
 }
