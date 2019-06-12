@@ -234,12 +234,15 @@ int main (void)
 		newTime = gps_get_time();
 		timekeeper_refine((uint32_t)newTime);
 		
-		
+		double currAlt = alt_get_current_altitude();
+		double smooth_altitude = alt_get_smooth_altitude();
+		double smooth_velocity = alt_get_smooth_vvel(0.025);
 		
 		if(lastSec != timekeeper_get_sec())
 		{
 			lastSec = timekeeper_get_sec();
 			printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,ACTIVE,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), imu_heading()*10);
+			printf("altitude: %f, velocity: %f\n", smooth_altitude, smooth_velocity);
 			packets++;
 		}
 		
@@ -264,10 +267,9 @@ int main (void)
 		
 	
 
-		double currAlt = alt_get_current_altitude();
-		double smooth_altitude = alt_get_smooth_altitude();
 		
 		//Temporary states for drop tests
+		/*
 		if(state == 0)
 		{
 			pidOn = false;
@@ -288,62 +290,63 @@ int main (void)
 				pid_clear_integral();
 				transitionTime = 0;
 			}
-		}
+		}*/
 		
 		
 
-// 		if (state == 0){
-// 			//printf("Flight State 0\n");
-// 			if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= -10)){ //Work on Velocity later, this will work for now
-// 			//if ((smooth_altitude <= 500) && (altitudeChange <= -10)){
-// 				state = 1;
-// 				//Turn Camera On
-// 				PORTC.DIRSET = 0b00010000;
-// 				PORTC.OUTSET = 0b00010000;
-// //				if (timekeeper_get_millis()%600 >= 2) {
-// //					PORTC.OUTCLR = 0b00010000;
-// //				}
-// 				delay_ms(600);
-// 				PORTC.OUTCLR = 0b00010000;
-// 			}
-// 			if (smooth_altitude > maxAltitude) {
-// 				maxAltitude = smooth_altitude;
-//  			}
-// 		}
-// 		if (state == 1){
-// 			printf("Flight State 1\n");
-// 			
-//  			if (smooth_altitude-initialAltitude<=450){
-//  				state = 2;
-//  			}
-// 		}
-// 		if (state == 2){
-// 			printf("Flight State 2\n");
-//  			if ((smooth_altitude - initialAltitude <= 50) /*&& (velocity<=1)*/){
-// 				state = 3;
-// 				//Turn Camera Off
-// 				PORTC.DIRSET = 0b00010000;
-// 				PORTC.OUTSET = 0b00010000;
-// 				delay_ms(600);
-// 				PORTC.OUTCLR = 0b00010000;
-// 				//Turn Camera On
-// 				PORTC.DIRSET = 0b00010000;
-// 				PORTC.OUTSET = 0b00010000;
-// 				delay_ms(600);
-// 				PORTC.OUTCLR = 0b00010000;
-//  			}
-// 		}
-// 		if (state == 3){
-// 			printf("Flight State 3\n");
-// 			if ((timekeeper_get_millis()%500) < 250) {
-// 				PORTD.DIRSET = 0b00010000;
-// 				PORTD.OUTSET = 0b00010000;
-// 			}
-// 			else {
-// 				PORTD.OUTCLR = 0b00010000;
-// 			}
-// 			//Buzzer or something
-// 		}
+		if (state == 0){
+			//printf("Flight State 0\n");
+			
+			//if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= -10)){ //Work on Velocity later, this will work for now
+			if ((smooth_altitude >= 500) && (smooth_velocity <= -10)){
+				state = 1;
+				//Turn Camera On
+				PORTC.DIRSET = 0b00010000;
+				PORTC.OUTSET = 0b00010000;
+//				if (timekeeper_get_millis()%600 >= 2) {
+//					PORTC.OUTCLR = 0b00010000;
+//				}
+				delay_ms(600);
+				PORTC.OUTCLR = 0b00010000;
+			}
+			/*if (smooth_altitude > maxAltitude) {
+				maxAltitude = smooth_altitude;
+ 			}*/
+		}
+		if (state == 1){
+			printf("Flight State 1\n");
+			
+ 			if (smooth_altitude-initialAltitude<=450){
+ 				state = 2;
+ 			}
+		}
+		if (state == 2){
+			printf("Flight State 2\n");
+ 			if ((smooth_altitude - initialAltitude <= 50) && (smooth_velocity<=1)){
+				state = 3;
+				//Turn Camera Off
+				PORTC.DIRSET = 0b00010000;
+				PORTC.OUTSET = 0b00010000;
+				delay_ms(600);
+				PORTC.OUTCLR = 0b00010000;
+				//Turn Camera On
+				PORTC.DIRSET = 0b00010000;
+				PORTC.OUTSET = 0b00010000;
+				delay_ms(600);
+				PORTC.OUTCLR = 0b00010000;
+ 			}
+		}
+		if (state == 3){
+			printf("Flight State 3\n");
+			if ((timekeeper_get_millis()%500) < 250) {
+				PORTD.DIRSET = 0b00010000;
+				PORTD.OUTSET = 0b00010000;
+			}
+			else {
+				PORTD.OUTCLR = 0b00010000;
+			}
+			//Buzzer or something
+		}
 		
 		
 		timekeeper_loop_end(25);

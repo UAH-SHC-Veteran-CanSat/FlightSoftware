@@ -68,7 +68,7 @@ void imu_update()
 	
 	if (accel_calib == 0 && mag_calib == 0 && gyro_calib == 0 && sys_calib == 0)
 	{
-		printf("IMU Completely uncalibrated\n");
+		//printf("IMU Completely uncalibrated\n");
 	}
 }
 
