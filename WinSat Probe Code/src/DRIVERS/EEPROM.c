@@ -24,8 +24,6 @@ void ee_init()
 	{
 		printf("NVM INIT FAIL\n");
 	}
-	ee_write_uint32(65540,0);
-	printf("%lu\n",ee_read_uint32(0));
 }
 
 
@@ -61,22 +59,22 @@ void bytesToDouble(double *val, uint8_t* bytes_array)
 
 void bytesToUint16(uint16_t *val, uint8_t* bytes_array)
 {
-	*val = bytes_array[0] | bytes_array[1]<<8;
+	*val = (uint16_t)bytes_array[0] | (uint16_t)bytes_array[1]<<8;
 }
 
 void bytesToUint32(uint32_t *val, uint8_t* bytes_array)
 {
-	*val = bytes_array[0] | bytes_array[1]<<8 | bytes_array[2]<<16 | bytes_array[3]<<24;
+	*val = (uint32_t)bytes_array[0] | (uint32_t)bytes_array[1]<<8 | (uint32_t)bytes_array[2]<<16 | (uint32_t)bytes_array[3]<<24;
 }
 
 void bytesToInt16(int16_t *val, uint8_t* bytes_array)
 {
-	*val = bytes_array[0] | bytes_array[1]<<8;
+	*val = (int16_t)bytes_array[0] | (int16_t)bytes_array[1]<<8;
 }
 
 void bytesToInt32(int32_t *val, uint8_t* bytes_array)
 {
-	*val = bytes_array[0] | bytes_array[1]<<8 | bytes_array[2]<<16 | bytes_array[3]<<24;
+	*val = (int32_t)bytes_array[0] | (int32_t)bytes_array[1]<<8 | (int32_t)bytes_array[2]<<16 | (int32_t)bytes_array[3]<<24;
 }
 
 
