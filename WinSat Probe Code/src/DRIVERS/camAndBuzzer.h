@@ -10,13 +10,13 @@
 #ifndef CAMANDBUZZER_H_
 #define CAMANDBUZZER_H_
 
-void cambuz_init();
+void cambuz_init(void);
 
-void cam_enable();
-void cam_disable();
+void cam_enable(void);
+void cam_disable(void);
 
-void buz_enable();
-void buz_disable();
+void buz_enable(void);
+void buz_disable(void);
 
 void cam_update(uint32_t millis);
 void buz_update(uint32_t millis);

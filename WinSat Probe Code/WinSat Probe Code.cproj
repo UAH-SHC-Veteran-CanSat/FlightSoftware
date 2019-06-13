@@ -30,6 +30,7 @@
       <framework-data>
   <options>
     <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.services.basic.clock" value="Add" config="" content-id="Atmel.ASF" />
     <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
     <option id="common.services.basic.fifo" value="Add" config="" content-id="Atmel.ASF" />
     <option id="common.services.basic.gpio" value="Add" config="" content-id="Atmel.ASF" />
@@ -42,7 +43,7 @@
     <option id="xmega.drivers.twi" value="Add" config="both" content-id="Atmel.ASF" />
     <option id="xmega.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
     <option id="xmega.drivers.wdt" value="Add" config="" content-id="Atmel.ASF" />
-    <option id="common.services.basic.clock" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.drivers.nvm" value="Add" config="no_extmem" content-id="Atmel.ASF" />
   </options>
   <configurations />
   <files>
@@ -125,6 +126,9 @@
     <file path="src/ASF/common/services/fifo/fifo.h" framework="" version="3.34.1" source="common\services\fifo\fifo.h" changed="False" content-id="Atmel.ASF" />
     <file path="src/ASF/xmega/drivers/ac/ac.h" framework="" version="3.34.1" source="xmega\drivers\ac\ac.h" changed="False" content-id="Atmel.ASF" />
     <file path="src/ASF/xmega/drivers/ac/ac.c" framework="" version="3.34.1" source="xmega\drivers\ac\ac.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/drivers/nvm/xmega/xmega_nvm.c" framework="" version="3.34.1" source="common\drivers\nvm\xmega\xmega_nvm.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/drivers/nvm/common_nvm.h" framework="" version="3.34.1" source="common\drivers\nvm\common_nvm.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/Config/conf_nvm.h" framework="" version="3.34.1" source="common\drivers\nvm\xmega\module_config\conf_nvm.h" changed="False" content-id="Atmel.ASF" />
   </files>
   <documentation help="http://asf.atmel.com/docs/3.34.1/common.applications.user_application.user_board.xmegaau/html/index.html" />
   <offline-documentation help="" />
@@ -213,6 +217,7 @@
       <Value>../src/ASF/common/services/fifo</Value>
       <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
       <Value>../src/ASF/xmega/drivers/ac</Value>
+      <Value>../src/ASF/common/drivers/nvm</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -259,6 +264,7 @@
       <Value>../src/ASF/common/services/fifo</Value>
       <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
       <Value>../src/ASF/xmega/drivers/ac</Value>
+      <Value>../src/ASF/common/drivers/nvm</Value>
     </ListValues>
   </avrgcc.assembler.general.IncludePaths>
 </AvrGcc>
@@ -311,6 +317,7 @@
       <Value>../src/ASF/common/services/fifo</Value>
       <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
       <Value>../src/ASF/xmega/drivers/ac</Value>
+      <Value>../src/ASF/common/drivers/nvm</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -359,6 +366,7 @@
       <Value>../src/ASF/common/services/fifo</Value>
       <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
       <Value>../src/ASF/xmega/drivers/ac</Value>
+      <Value>../src/ASF/common/drivers/nvm</Value>
     </ListValues>
   </avrgcc.assembler.general.IncludePaths>
   <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
@@ -371,6 +379,9 @@
     <Folder Include="src\ASF\common\" />
     <Folder Include="src\ASF\common\boards\" />
     <Folder Include="src\ASF\common\boards\user_board\" />
+    <Folder Include="src\ASF\common\drivers\" />
+    <Folder Include="src\ASF\common\drivers\nvm\" />
+    <Folder Include="src\ASF\common\drivers\nvm\xmega\" />
     <Folder Include="src\ASF\common\services\" />
     <Folder Include="src\ASF\common\services\clock\" />
     <Folder Include="src\ASF\common\services\clock\xmega\" />
@@ -416,6 +427,12 @@
     <None Include="src\ASF\common\services\serial\serial.h">
       <SubType>compile</SubType>
     </None>
+    <None Include="src\ASF\common\drivers\nvm\common_nvm.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\common\drivers\nvm\xmega\xmega_nvm.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\ASF\common\services\fifo\fifo.c">
       <SubType>compile</SubType>
     </Compile>
@@ -455,6 +472,9 @@
     <None Include="src\ASF\xmega\drivers\wdt\wdt.h">
       <SubType>compile</SubType>
     </None>
+    <None Include="src\config\conf_nvm.h">
+      <SubType>compile</SubType>
+    </None>
     <Compile Include="src\config\conf_usart_serial.h">
       <SubType>compile</SubType>
     </Compile>
@@ -474,6 +494,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\DRIVERS\cmd_utils.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\eeprom.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\eeprom.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\DRIVERS\GPS.c">

@@ -17,6 +17,7 @@
 #include "DRIVERS/pid.h"
 #include "DRIVERS/cmd_utils.h"
 #include "DRIVERS/camAndBuzzer.h"
+#include "DRIVERS/eeprom.h"
 
 uint16_t state = 0;
 uint32_t telemetryPeriod = 1000;
@@ -213,7 +214,7 @@ int main (void)
 			fin2_set_pos(servoManualPos);
 		}
 		
-		double currAlt = alt_get_current_altitude();
+		//double currAlt = alt_get_current_altitude(); currently unused, commented out for speed
 		double smooth_altitude = alt_get_smooth_altitude();
 		double smooth_velocity = alt_get_smooth_vvel(0.025);
 		
@@ -393,12 +394,13 @@ void doCommands()
 		else if(strcmp(cmd_prefix, "FIN")==0)
 		{
 			servoManualPos = cmd_parse_uint16(cmd_split(cmd,"/",1));
-			printf("Setting fin position to %f\%\n",servoManualPos/1000.0);
+			printf("Setting fin position to %f%%\n",servoManualPos/1000.0);
 		}
 		else
 		{
 			printf("Command Unrecognized\n");
 		}
+		//TODO: Hard Reset that clears eeprom
 		
 	}
 }
@@ -490,6 +492,8 @@ void initialize()
 	
 	cambuz_init();
 	
-	printf("\INIT COMPLETE!\n\n\n");
-	log_printf("\INIT COMPLETE!\n\n\n");
+	ee_init();
+	
+	printf("\nINIT COMPLETE!\n\n\n");
+	log_printf("\nINIT COMPLETE!\n\n\n");
 }

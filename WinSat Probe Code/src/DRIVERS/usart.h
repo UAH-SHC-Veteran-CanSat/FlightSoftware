@@ -21,8 +21,8 @@
 
 
 //Whichever device is uncommented below will respond to printf, the other will work with log_printf
-#define XBEE_PRIMARY
-//#define OPENLOG_PRIMARY
+//#define XBEE_PRIMARY
+#define OPENLOG_PRIMARY
 
 #define SECONDARY_TX_BUFFER_SIZE 128
 
@@ -41,9 +41,9 @@ void UART_Comms_Init(void); //This will initialize the uart communications
 
 void log_printf(const char*, ...);
 
-bool is_command_ready();
+bool is_command_ready(void);
 
-char* get_command();
+char* get_command(void);
 
 
 #endif /* USART_H_ */

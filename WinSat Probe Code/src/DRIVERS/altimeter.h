@@ -18,16 +18,16 @@
 
 #define PRES_HIST_BUFFER_LEN 16
 
-void alt_init();
+void alt_init(void);
 void alt_set_zero(double);
-void alt_set_current_to_zero();
+void alt_set_current_to_zero(void);
 
-void alt_update();
+void alt_update(void);
 
-double alt_get_pressure();
-double alt_get_temperature();
-double alt_get_current_altitude();
-double alt_get_smooth_altitude();
+double alt_get_pressure(void);
+double alt_get_temperature(void);
+double alt_get_current_altitude(void);
+double alt_get_smooth_altitude(void);
 double alt_get_current_vvel(double);
 double alt_get_smooth_vvel(double);
 

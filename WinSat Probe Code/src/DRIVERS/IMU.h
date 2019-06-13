@@ -21,22 +21,22 @@
 
 #define IMU_TWI TWIC
 
-void imu_init();
+void imu_init(void);
 
-void imu_update();
+void imu_update(void);
 
-double imu_accel_x();
-double imu_accel_y();
-double imu_accel_z();
+double imu_accel_x(void);
+double imu_accel_y(void);
+double imu_accel_z(void);
 
-double imu_roll();
-double imu_pitch();
-double imu_heading();
+double imu_roll(void);
+double imu_pitch(void);
+double imu_heading(void);
 
-uint8_t imu_accel_cal();
-uint8_t imu_gyro_cal();
-uint8_t imu_mag_cal();
-uint8_t imu_sys_cal();
+uint8_t imu_accel_cal(void);
+uint8_t imu_gyro_cal(void);
+uint8_t imu_mag_cal(void);
+uint8_t imu_sys_cal(void);
 
 
 
