@@ -16,10 +16,11 @@
 #include "DRIVERS/rpmSensor.h"
 #include "DRIVERS/pid.h"
 #include "DRIVERS/cmd_utils.h"
+#include "DRIVERS/camAndBuzzer.h"
 
 uint16_t state = 0;
 uint32_t telemetryPeriod = 1000;
-uint32_t logPeriod = 200;
+uint32_t logPeriod = 250;
 uint32_t gpsPeriod = 1000;
 uint32_t lastPacketMillis = 0;
 uint32_t lastLogMillis = 0;
@@ -27,33 +28,144 @@ uint32_t lastGpsMillis = 0;
 uint16_t teamID = 2591;
 double maxAltitude = 0;
 	
-uint32_t pidOnTime = 0;
-
 uint16_t servoManualPos = 500;
 	
 uint32_t packets = 0;
 	
 bool pidOn = false;
 bool pidJustOn = false;
+uint32_t pidOnTime = 0;
+uint32_t pidOnDelay = 500;
 
 enum states{UNARMED, PRELAUNCH, ASCENT, DESCENT, ACTIVE, LANDED};
+const char* stateNames[6];
+
+uint32_t stateMinTimes[6] = {1000, 1000, 2000, 2000, 120000, 1000}; // Minimum time in milliseconds to spend in each state
+uint32_t stateSwitchMillis = 0;
 
 void initialize();
-
 void doCommands();
 
 // Put state transition behavior in these functions
 void goToState(uint16_t newState);
-void toState0(); // UNARMED
-void toState1(); // PRELAUNCH
-void toState2(); // ASCENT
-void toState3(); // DESCENT
-void toState4(); // ACTIVE
-void toState5(); // LANDED
+void toStateUnarmed(); // UNARMED
+void toStatePrelaunch(); // PRELAUNCH
+void toStateAscent(); // ASCENT
+void toStateDescent(); // DESCENT
+void toStateActive(); // ACTIVE
+void toStateLanded(); // LANDED
+
+void goToState(uint16_t newState)
+{
+	switch(newState)
+	{
+		case UNARMED :
+			toStateUnarmed();
+			break;
+		case PRELAUNCH :
+			toStatePrelaunch();
+			break;
+		case ASCENT :
+			toStateAscent();
+			break;
+		case DESCENT :
+			toStateDescent();
+			break;
+		case ACTIVE :
+			toStateActive();
+			break;
+		case LANDED :
+			toStateLanded();
+			break;
+		default :
+			printf("Attempted to enter invalid state\n");
+	}
+}
+
+void toStateUnarmed() // UNARMED
+{
+	pidOn = false;
+	buz_disable();
+	cam_disable();
+	maxAltitude = 0;
+	if(telemetryPeriod == 30000)
+	{
+		telemetryPeriod = 1000;
+	}
+	state = UNARMED;
+}
+
+void toStatePrelaunch() //PRELAUNCH
+{
+	pidOn = false;
+	buz_disable();
+	cam_disable();
+	maxAltitude = 0;
+	if(telemetryPeriod == 30000)
+	{
+		telemetryPeriod = 1000;
+	}
+	state = PRELAUNCH;
+}
+
+void toStateAscent() //ASCENT
+{
+	pidOn = false;
+	buz_disable();
+	cam_enable();
+	if(telemetryPeriod == 30000)
+	{
+		telemetryPeriod = 1000;
+	}
+	state = ASCENT;
+}
+
+void toStateDescent() //DESCENT
+{
+	pidOn = false;
+	buz_disable();
+	cam_enable();
+	if(telemetryPeriod == 30000)
+	{
+		telemetryPeriod = 1000;
+	}
+	state = DESCENT;
+}
+
+void toStateActive() // ACTIVE
+{
+	pidOn = true;
+	pidOnTime = timekeeper_get_millis() + pidOnDelay;
+	pidJustOn = true;
+	buz_disable();
+	cam_enable();
+	release_open();
+	if(telemetryPeriod == 30000)
+	{
+		telemetryPeriod = 1000;
+	}
+	state = ACTIVE;
+}
+
+void toStateLanded() // LANDED
+{
+	pidOn = false;
+	buz_enable();
+	cam_disable();
+	telemetryPeriod = 30000;
+	state = LANDED;
+}
 
 
 int main (void)
 {
+	stateNames[0] = "UNARMED";
+	stateNames[1] = "PRELAUNCH";
+	stateNames[2] = "ASCENT";
+	stateNames[3] = "DESCENT";
+	stateNames[4] = "ACTIVE";
+	stateNames[5] = "LANDED";
+	
 	initialize();
 	
 	while (1){
@@ -75,27 +187,7 @@ int main (void)
 		imu_update();
 		alt_update();
 		
-
-		
-		double currAlt = alt_get_current_altitude();
-		double smooth_altitude = alt_get_smooth_altitude();
-		double smooth_velocity = alt_get_smooth_vvel(0.025);
-		
-		if(lastPacketMillis + telemetryPeriod < timekeeper_get_millis())
-		{
-			lastPacketMillis = timekeeper_get_millis();
-			printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,ACTIVE,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), imu_heading()*10);
-			packets++;
-		}
-		
-		if(lastLogMillis + logPeriod < timekeeper_get_millis())
-		{
-			lastLogMillis = timekeeper_get_millis();
-			//log uses milliseconds instead of seconds since it goes at a higher rate
-			log_printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,ACTIVE,%.0f\n",timekeeper_get_millis(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), imu_heading()*10);
-		}
-		
-		if(pidOn)
+		if(pidOn && timekeeper_get_millis() > pidOnTime)
 		{
 			pid_update(imu_heading(),timekeeper_get_millis());
 			
@@ -109,67 +201,75 @@ int main (void)
 			fin2_set_pos(pid_output());
 		}
 		else
-		{	
+		{
 			fin1_set_pos(servoManualPos);
 			fin2_set_pos(servoManualPos);
 		}
 		
+		if(lastPacketMillis + telemetryPeriod < timekeeper_get_millis())
+		{
+			lastPacketMillis = timekeeper_get_millis();
+			printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,%s,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), stateNames[state], imu_heading()*10);
+			packets++;
+		}
 		
+		if(lastLogMillis + logPeriod < timekeeper_get_millis())
+		{
+			lastLogMillis = timekeeper_get_millis();
+			//log uses milliseconds instead of seconds since it goes at a higher rate
+			log_printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,%s,%.0f\n",timekeeper_get_millis(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), stateNames[state],imu_heading()*10);
+		}
 		
+		buz_update(timekeeper_get_millis());
+		cam_update(timekeeper_get_millis());
+		
+		double currAlt = alt_get_current_altitude();
+		double smooth_altitude = alt_get_smooth_altitude();
+		double smooth_velocity = alt_get_smooth_vvel(0.025);
 
-		if (state == 0){
-			//printf("Flight State 0\n");
-			
-			//if ((smooth_altitude <= 500) && ((int32_t)maxAltitude - (int32_t)smooth_altitude <= -10)){ //Work on Velocity later, this will work for now
-			if ((smooth_altitude >= 500) && (smooth_velocity <= -10)){
-				state = 1;
-				//Turn Camera On
-				PORTC.DIRSET = 0b00010000;
-				PORTC.OUTSET = 0b00010000;
-//				if (timekeeper_get_millis()%600 >= 2) {
-//					PORTC.OUTCLR = 0b00010000;
-//				}
-				delay_ms(600);
-				PORTC.OUTCLR = 0b00010000;
+		if (state == UNARMED)
+		{
+			//Don't do anything but wait to be armed
+		}
+		else if (state == PRELAUNCH)
+		{
+			if(smooth_altitude > 50 || smooth_velocity > 20 || (smooth_altitude>20 && smooth_velocity > 10))
+			{
+				toStateAscent();
 			}
-			/*if (smooth_altitude > maxAltitude) {
+		}
+		else if (state == ASCENT)
+		{
+			if(smooth_altitude > maxAltitude)
+			{
 				maxAltitude = smooth_altitude;
- 			}*/
-		}
-		if (state == 1){
-			printf("Flight State 1\n");
+			}
 			
- 			if (smooth_altitude<=450){ // Dont need to use initialAltitude, the altimter driver takes care of that
- 				state = 2;
- 			}
-		}
-		if (state == 2){
-			printf("Flight State 2\n");
- 			if ((smooth_altitude <= 50) && (smooth_velocity<=1)){
-				state = 3;
-				//Turn Camera Off
-				PORTC.DIRSET = 0b00010000;
-				PORTC.OUTSET = 0b00010000;
-				delay_ms(600);
-				PORTC.OUTCLR = 0b00010000;
-				//Turn Camera On
-				PORTC.DIRSET = 0b00010000;
-				PORTC.OUTSET = 0b00010000;
-				delay_ms(600);
-				PORTC.OUTCLR = 0b00010000;
- 			}
-		}
-		if (state == 3){
-			printf("Flight State 3\n");
-			if ((timekeeper_get_millis()%500) < 250) {
-				PORTD.DIRSET = 0b00010000;
-				PORTD.OUTSET = 0b00010000;
+			if(smooth_altitude < maxAltitude - 50)
+			{
+				toStateDescent();
 			}
-			else {
-				PORTD.OUTCLR = 0b00010000;
-			}
-			//Buzzer or something
 		}
+		else if (state == DESCENT)
+		{
+			if(smooth_altitude < 460)
+			{
+				toStateActive();
+			}
+		}
+		else if (state == ACTIVE)
+		{
+			if(smooth_altitude < 20 || abs(smooth_velocity) < 5)
+			{
+				toStateLanded();
+			}
+		}
+		else if (state == LANDED)
+		{
+			//Woohoo we did it
+		}
+		
+		
 		
 		
 		timekeeper_loop_end(25);
@@ -187,6 +287,7 @@ void doCommands()
 		{
 			printf("Calibrating altitude\n");
 			alt_set_current_to_zero();
+			gps_zero_current_alt();
 		}
 		else if(strcmp(cmd,"CAL_IMU")==0)
 		{
@@ -222,6 +323,7 @@ void doCommands()
 		{
 			pid_clear_integral();
 			pidOn = true;
+			pidOnTime = timekeeper_get_millis() + pidOnDelay;
 			pidJustOn = true;
 		}
 		else if(strcmp(cmd, "PIDSTOP")==0)
@@ -233,13 +335,13 @@ void doCommands()
 		}
 		else if(strcmp(cmd_prefix, "STATE")==0)
 		{
-			state = cmd_parse_uint16(cmd_split(cmd,"/",1));
-			printf("Setting state to %u\n",state);
+			goToState(cmd_parse_uint16(cmd_split(cmd,"/",1)));
+			printf("Setting state to %s\n",stateNames[state]);
 		}
 		else if(strcmp(cmd, "ARM")==0)
 		{
-			state = 1;
-			printf("Setting state to 1");
+			goToState(PRELAUNCH);
+			printf("Arming CanSat!\n");
 		}
 		else if(strcmp(cmd, "ABORT")==0)
 		{
@@ -259,7 +361,7 @@ void doCommands()
 		else if(strcmp(cmd_prefix, "FIN")==0)
 		{
 			servoManualPos = cmd_parse_uint16(cmd_split(cmd,"/",1));
-			printf("Setting fin angle to %f\n",1000.0 / servoManualPos);
+			printf("Setting fin position to %f\%\n",servoManualPos/1000.0);
 		}
 		else
 		{
@@ -353,6 +455,8 @@ void initialize()
 	servos_start();
 	
 	pid_init(10.0, 0.1, 3.0, 180.0); // DEFAULT PID CONSTANTS HERE
+	
+	cambuz_init();
 	
 	printf("\INIT COMPLETE!\n\n\n");
 	log_printf("\INIT COMPLETE!\n\n\n");

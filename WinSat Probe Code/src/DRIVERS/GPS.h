@@ -36,6 +36,8 @@ double gps_get_altitude();
 double gps_get_time();
 uint16_t gps_get_sats();
 
+void gps_zero_current_alt();
+
 
 
 #endif /* GPS_H_ */

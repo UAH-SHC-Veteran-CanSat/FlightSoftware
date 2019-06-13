@@ -16,7 +16,7 @@
 #define	I2C_BUFFER_LEN 64
 #define ALT_TWI TWIC
 
-#define PRES_HIST_BUFFER_LEN 8
+#define PRES_HIST_BUFFER_LEN 16
 
 void alt_init();
 void alt_set_zero(double);

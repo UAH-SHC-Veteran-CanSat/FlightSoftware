@@ -309,7 +309,12 @@ double gps_get_latitude() {
 }
 
 double gps_get_altitude() {
-	return alt;
+	return alt - terrainAlt;
+}
+
+void gps_zero_current_alt()
+{
+	terrainAlt = alt;
 }
 
 double gps_get_time() {

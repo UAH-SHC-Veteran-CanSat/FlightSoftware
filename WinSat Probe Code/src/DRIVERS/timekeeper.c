@@ -87,13 +87,16 @@ void timekeeper_loop_start()
 
 void timekeeper_loop_end(uint32_t loop_period)
 {
-	if(millis < loop_start + loop_period)
+	if(millis <= loop_start + loop_period)
 	{
+		//printf("Loop took %lu ms but was set to %lu ms\n", millis-loop_start, loop_period);
 		timekeeper_delay_until_ms(loop_period+loop_start);
 	}
 	else
 	{
 		printf("Period too low, can't keep up\nLoop took %lu ms but was set to %lu ms\n", millis-loop_start, loop_period);
 	}
+
+	
 	
 }
