@@ -93,6 +93,7 @@ void toStateUnarmed() // UNARMED
 		telemetryPeriod = 1000;
 	}
 	state = UNARMED;
+	stateSwitchMillis = timekeeper_get_millis();
 }
 
 void toStatePrelaunch() //PRELAUNCH
@@ -106,6 +107,7 @@ void toStatePrelaunch() //PRELAUNCH
 		telemetryPeriod = 1000;
 	}
 	state = PRELAUNCH;
+	stateSwitchMillis = timekeeper_get_millis();
 }
 
 void toStateAscent() //ASCENT
@@ -118,6 +120,7 @@ void toStateAscent() //ASCENT
 		telemetryPeriod = 1000;
 	}
 	state = ASCENT;
+	stateSwitchMillis = timekeeper_get_millis();
 }
 
 void toStateDescent() //DESCENT
@@ -130,6 +133,7 @@ void toStateDescent() //DESCENT
 		telemetryPeriod = 1000;
 	}
 	state = DESCENT;
+	stateSwitchMillis = timekeeper_get_millis();
 }
 
 void toStateActive() // ACTIVE
@@ -145,6 +149,7 @@ void toStateActive() // ACTIVE
 		telemetryPeriod = 1000;
 	}
 	state = ACTIVE;
+	stateSwitchMillis = timekeeper_get_millis();
 }
 
 void toStateLanded() // LANDED
@@ -153,7 +158,9 @@ void toStateLanded() // LANDED
 	buz_enable();
 	cam_disable();
 	telemetryPeriod = 30000;
+	lastPacketMillis = 0;
 	state = LANDED;
+	stateSwitchMillis = timekeeper_get_millis();
 }
 
 
@@ -235,7 +242,11 @@ int main (void)
 		{
 			if(smooth_altitude > 50 || smooth_velocity > 20 || (smooth_altitude>20 && smooth_velocity > 10))
 			{
-				toStateAscent();
+				if(timekeeper_get_millis() > stateSwitchMillis + stateMinTimes[state])
+				{
+					toStateAscent();
+				}
+				
 			}
 		}
 		else if (state == ASCENT)
@@ -247,21 +258,30 @@ int main (void)
 			
 			if(smooth_altitude < maxAltitude - 50)
 			{
-				toStateDescent();
+				if(timekeeper_get_millis() > stateSwitchMillis + stateMinTimes[state])
+				{
+					toStateDescent();
+				}
 			}
 		}
 		else if (state == DESCENT)
 		{
 			if(smooth_altitude < 460)
 			{
-				toStateActive();
+				if(timekeeper_get_millis() > stateSwitchMillis + stateMinTimes[state])
+				{
+					toStateActive();
+				}
 			}
 		}
 		else if (state == ACTIVE)
 		{
 			if(smooth_altitude < 20 || abs(smooth_velocity) < 5)
 			{
-				toStateLanded();
+				if(timekeeper_get_millis() > stateSwitchMillis + stateMinTimes[state])
+				{
+					toStateLanded();
+				}
 			}
 		}
 		else if (state == LANDED)
