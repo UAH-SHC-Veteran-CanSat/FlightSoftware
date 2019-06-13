@@ -44,7 +44,7 @@ void buz_disable()
 	buzEnabled = false;
 }
 
-void cam_update(uint32_t millis)
+void cam_update(uint32_t millis) //
 {
 	if(camOn != lastCamOn)
 	{

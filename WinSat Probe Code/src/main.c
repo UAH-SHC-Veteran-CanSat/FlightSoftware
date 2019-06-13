@@ -40,7 +40,7 @@ uint32_t pidOnDelay = 500;
 enum states{UNARMED, PRELAUNCH, ASCENT, DESCENT, ACTIVE, LANDED};
 const char* stateNames[6];
 
-uint32_t stateMinTimes[6] = {1000, 1000, 2000, 2000, 120000, 1000}; // Minimum time in milliseconds to spend in each state
+uint32_t stateMinTimes[6] = {1000, 1000, 2000, 2000, 90000, 1000}; // Minimum time in milliseconds to spend in each state
 uint32_t stateSwitchMillis = 0;
 
 void initialize();
@@ -213,10 +213,14 @@ int main (void)
 			fin2_set_pos(servoManualPos);
 		}
 		
+		double currAlt = alt_get_current_altitude();
+		double smooth_altitude = alt_get_smooth_altitude();
+		double smooth_velocity = alt_get_smooth_vvel(0.025);
+		
 		if(lastPacketMillis + telemetryPeriod < timekeeper_get_millis())
 		{
 			lastPacketMillis = timekeeper_get_millis();
-			printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,%s,%.0f\n",timekeeper_get_sec(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), stateNames[state], imu_heading()*10);
+			printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,%s,%.0f\n",timekeeper_get_sec(),packets,smooth_altitude*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), stateNames[state], imu_heading()*10);
 			packets++;
 		}
 		
@@ -224,15 +228,13 @@ int main (void)
 		{
 			lastLogMillis = timekeeper_get_millis();
 			//log uses milliseconds instead of seconds since it goes at a higher rate
-			log_printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,%s,%.0f\n",timekeeper_get_millis(),packets,alt_get_current_altitude()*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), stateNames[state],imu_heading()*10);
+			log_printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,%s,%.0f\n",timekeeper_get_millis(),packets,smooth_altitude*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), stateNames[state],imu_heading()*10);
 		}
 		
 		buz_update(timekeeper_get_millis());
 		cam_update(timekeeper_get_millis());
 		
-		double currAlt = alt_get_current_altitude();
-		double smooth_altitude = alt_get_smooth_altitude();
-		double smooth_velocity = alt_get_smooth_vvel(0.025);
+
 
 		if (state == UNARMED)
 		{
@@ -276,7 +278,7 @@ int main (void)
 		}
 		else if (state == ACTIVE)
 		{
-			if(smooth_altitude < 20 || abs(smooth_velocity) < 5)
+			if(smooth_altitude < 20 || abs(smooth_velocity) < 4)
 			{
 				if(timekeeper_get_millis() > stateSwitchMillis + stateMinTimes[state])
 				{
