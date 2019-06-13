@@ -373,6 +373,16 @@ void doCommands()
 			release_close();
 			printf("Closing Release!\n");
 		}
+		else if(strcmp(cmd, "CAMON")==0)
+		{
+			cam_enable();
+			printf("Starting Camera\n");
+		}
+		else if(strcmp(cmd, "CAMOFF")==0)
+		{
+			cam_disable();
+			printf("Stopping Camera\n");
+		}
 		else if(strcmp(cmd_prefix, "RATE")==0)
 		{
 			telemetryPeriod = cmd_parse_uint32(cmd_split(cmd,"/",1));

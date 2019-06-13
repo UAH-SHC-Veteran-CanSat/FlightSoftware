@@ -15,7 +15,6 @@ bool buzEnabled = false;
 
 
 uint32_t camOnMillis = 0;
-uint32_t camOffMillis = 0;
 bool lastCamOn = false;
 bool camOn = false;
 
@@ -50,15 +49,16 @@ void cam_update(uint32_t millis)
 	if(camOn != lastCamOn)
 	{
 		lastCamOn = camOn;
-		if (camOn)
-		{
-			camOnMillis = millis + 750;
-		}
-		else
-		{
-			camOffMillis = millis + 750;
-		}
+		
+		camOnMillis = millis + 750;
+		PORTC.OUTSET = 0b00010000;
 	}
+	
+	if(millis > camOnMillis)
+	{
+		PORTC.OUTCLR = 0b00010000;
+	}
+	
 }
 
 void buz_update(uint32_t millis)
