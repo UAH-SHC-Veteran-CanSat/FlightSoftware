@@ -57,6 +57,11 @@ static void timekeeper_callback(void)
 	tc_clear_overflow(&TK_TC);
 }
 
+void timekeeper_set_millis(uint32_t setMillis)
+{
+	millis = setMillis;
+}
+
 uint32_t timekeeper_get_millis()
 {
 	return millis;

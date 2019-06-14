@@ -20,6 +20,8 @@
 #include "DRIVERS/eeprom.h"
 #include "DRIVERS/dataSaver.h"
 
+#define RESET_TIMEOUT 120 // in seconds
+
 uint16_t state = 0;
 uint32_t telemetryPeriod = 1000;
 uint32_t logPeriod = 250;
@@ -38,6 +40,8 @@ bool pidOn = false;
 bool pidJustOn = false;
 uint32_t pidOnTime = 0;
 uint32_t pidOnDelay = 500;
+
+uint16_t next_ee_write = 0;
 
 enum states{UNARMED, PRELAUNCH, ASCENT, DESCENT, ACTIVE, LANDED};
 const char* stateNames[6];
@@ -96,6 +100,7 @@ void toStateUnarmed() // UNARMED
 	}
 	state = UNARMED;
 	stateSwitchMillis = timekeeper_get_millis();
+	save_state(state);
 }
 
 void toStatePrelaunch() //PRELAUNCH
@@ -110,6 +115,7 @@ void toStatePrelaunch() //PRELAUNCH
 	}
 	state = PRELAUNCH;
 	stateSwitchMillis = timekeeper_get_millis();
+	save_state(state);
 }
 
 void toStateAscent() //ASCENT
@@ -123,6 +129,7 @@ void toStateAscent() //ASCENT
 	}
 	state = ASCENT;
 	stateSwitchMillis = timekeeper_get_millis();
+	save_state(state);
 }
 
 void toStateDescent() //DESCENT
@@ -136,6 +143,7 @@ void toStateDescent() //DESCENT
 	}
 	state = DESCENT;
 	stateSwitchMillis = timekeeper_get_millis();
+	save_state(state);
 }
 
 void toStateActive() // ACTIVE
@@ -152,6 +160,7 @@ void toStateActive() // ACTIVE
 	}
 	state = ACTIVE;
 	stateSwitchMillis = timekeeper_get_millis();
+	save_state(state);
 }
 
 void toStateLanded() // LANDED
@@ -163,6 +172,7 @@ void toStateLanded() // LANDED
 	lastPacketMillis = 0;
 	state = LANDED;
 	stateSwitchMillis = timekeeper_get_millis();
+	save_state(state);
 }
 
 
@@ -217,13 +227,30 @@ int main (void)
 		
 		//double currAlt = alt_get_current_altitude(); currently unused, commented out for speed
 		double smooth_altitude = alt_get_smooth_altitude();
-		double smooth_velocity = alt_get_smooth_vvel(0.025);
+		double smooth_velocity = alt_get_smooth_vvel(0.05);
+		
+		if(next_ee_write == 1)
+		{
+			save_packets(packets);
+			next_ee_write = 2;
+		}
+		else if(next_ee_write == 2)
+		{
+			save_time(timekeeper_get_sec());
+			next_ee_write = 3;
+		}
+		else if(next_ee_write == 3)
+		{
+			save_utc((uint32_t)gps_get_time());
+			next_ee_write = 0;
+		}
 		
 		if(lastPacketMillis + telemetryPeriod < timekeeper_get_millis())
 		{
 			lastPacketMillis = timekeeper_get_millis();
 			printf("2591,%lu,%lu,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%.0f,%u,%.0f,%.0f,%lu,%s,%.0f\n",timekeeper_get_sec(),packets,smooth_altitude*10,alt_get_pressure(),adc_get_temperature()*10,adc_get_pwr_voltage()*100,gps_get_time(),gps_get_latitude()*100000,gps_get_longitude()*100000,gps_get_altitude()*10,gps_get_sats(),imu_pitch()*10, imu_roll()*10, rpm_get_rate(), stateNames[state], imu_heading()*10);
 			packets++;
+			next_ee_write = 1;
 		}
 		
 		if(lastLogMillis + logPeriod < timekeeper_get_millis())
@@ -260,7 +287,7 @@ int main (void)
 				maxAltitude = smooth_altitude;
 			}
 			
-			if(smooth_altitude < maxAltitude - 50)
+			if(smooth_altitude < maxAltitude - 20)
 			{
 				if(timekeeper_get_millis() > stateSwitchMillis + stateMinTimes[state])
 				{
@@ -296,7 +323,7 @@ int main (void)
 		
 		
 		
-		timekeeper_loop_end(25);
+		timekeeper_loop_end(50);
  	}
 }
 
@@ -312,6 +339,7 @@ void doCommands()
 			printf("Calibrating altitude\n");
 			alt_set_current_to_zero();
 			gps_zero_current_alt();
+			save_ground_alt(alt_get_zero());
 		}
 		else if(strcmp(cmd,"CAL_IMU")==0)
 		{
@@ -537,4 +565,52 @@ void initialize()
 	
 	printf("\nINIT COMPLETE!\n\n\n");
 	log_printf("\nINIT COMPLETE!\n\n\n");
+	
+	printf("CHECKING RESET STATUS\n");
+	
+	wdt_reset();
+	if (read_state() != UNARMED)
+	{
+		printf("LAST STATE NOT UNARMED %u\n");
+		uint32_t resetCheckStart = timekeeper_get_millis();
+		while(timekeeper_get_millis() < resetCheckStart + 5000)
+		{
+			wdt_reset();
+			gps_update();
+			
+			if(gps_get_time() != 0)
+			{
+				break;
+			}
+			delay_ms(1000);
+		}
+		
+		if(gps_get_time() == 0)
+		{
+			printf("UNABLE TO INITIALIZE GPS\nCANNOT DETERMINE PREVIOUS STATE\n");
+			toStateUnarmed();
+		}
+		else if((uint32_t) gps_get_time() < read_utc()+RESET_TIMEOUT)
+		{
+			printf("LAST STATE INSIDE TIMEOUT!\nRESUMING\n!");
+			uint32_t diffMills = ((uint32_t)gps_get_time() - read_utc())*1000;
+			timekeeper_set_millis(read_time()*1000 + diffMills);
+			packets = read_packets();
+			alt_set_zero(read_ground_alt());
+			uint16_t newState = read_state();
+			printf("ADVANCING TO STATE %s\n",stateNames[newState]);
+			goToState(newState);
+		}
+		else
+		{
+			printf("LAST STATE OUTSIDE TIMEOUT, IGNORING\n");
+			toStateUnarmed();
+		}
+	}
+	else
+	{
+		printf("PREVIOUS STATE NOT DETECTED\n");
+		toStateUnarmed();
+	}
+	
 }

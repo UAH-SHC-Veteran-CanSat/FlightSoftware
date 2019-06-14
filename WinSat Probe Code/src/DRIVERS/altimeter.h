@@ -19,6 +19,7 @@
 #define PRES_HIST_BUFFER_LEN 16
 
 void alt_init(void);
+double alt_get_zero(void);
 void alt_set_zero(double);
 void alt_set_current_to_zero(void);
 

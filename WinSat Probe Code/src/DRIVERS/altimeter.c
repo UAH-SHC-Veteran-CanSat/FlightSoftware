@@ -87,6 +87,11 @@ void alt_set_zero(double zeroAlt)
 	zeroAltitude = zeroAlt;
 }
 
+double alt_get_zero(void)
+{
+	return zeroAltitude;
+}
+
 void alt_set_current_to_zero()
 {
 	alt_set_zero(pres2alt(pressure));
