@@ -496,6 +496,12 @@
     <Compile Include="src\DRIVERS\cmd_utils.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\DRIVERS\dataSaver.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\DRIVERS\dataSaver.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\DRIVERS\eeprom.c">
       <SubType>compile</SubType>
     </Compile>

@@ -18,6 +18,7 @@
 #include "DRIVERS/cmd_utils.h"
 #include "DRIVERS/camAndBuzzer.h"
 #include "DRIVERS/eeprom.h"
+#include "DRIVERS/dataSaver.h"
 
 uint16_t state = 0;
 uint32_t telemetryPeriod = 1000;
@@ -328,6 +329,19 @@ void doCommands()
 			wdt_enable(); //Enables the watchdog timer if it wasn't already
 			while(1); // Waits until the watchdog timer resets the MCU
 		}
+		else if(strcmp(cmd,"HARD_RESET")==0)
+		{
+			printf("Hard Resetting\n");
+			save_state(UNARMED);
+			save_packets(0);
+			save_time(0);
+			save_utc(0);
+			save_ground_alt(0);
+			
+			wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_4KCLK);
+			wdt_enable(); //Enables the watchdog timer if it wasn't already
+			while(1); // Waits until the watchdog timer resets the MCU
+		}
 		else if(strcmp(cmd,"PIDCLR")==0)
 		{
 			printf("Clearing PID integral\n");
@@ -395,6 +409,33 @@ void doCommands()
 		{
 			servoManualPos = cmd_parse_uint16(cmd_split(cmd,"/",1));
 			printf("Setting fin position to %f%%\n",servoManualPos/1000.0);
+		}
+		else if(strcmp(cmd, "Hi CanSat, how are you?")==0 || strcmp(cmd, "Hi CanSat")==0)
+		{
+			if(state == UNARMED)
+			{
+				printf("I'm kinda bored, just waiting to be told to do something.\n");
+			}
+			else if(state == PRELAUNCH)
+			{
+				printf("I'm excited, I can't wait to launch!\n");
+			}
+			else if(state == ASCENT)
+			{
+				printf("WEEEEEEEEEEEEE!!!\n");
+			}
+			else if(state == DESCENT)
+			{
+				printf("WEEEOOooooOOOOAAAAHHHH!!\n");
+			}
+			else if(state == ACTIVE)
+			{
+				printf("Gotta... concentrate... on... pointing...\n");
+			}
+			else if(state == LANDED)
+			{
+				printf("Whew, that was great, I want to go again!\n");
+			}
 		}
 		else
 		{
