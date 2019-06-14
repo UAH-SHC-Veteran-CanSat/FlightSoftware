@@ -499,7 +499,7 @@ void initialize()
 	printf("\n\n\nUSART INIT\n"); //This prints to xbee
 	log_printf("\n\n\nSECONDARY USART INIT\n"); //This prints to openlog
 	
-	gps_init(0.0);
+	gps_init(388.0);
 	printf("GPS INIT\n");
 	log_printf("GPS INIT\n");
 	
@@ -546,7 +546,6 @@ void initialize()
 	delay_ms(250); //Wait for altitude data before setting zero
 	alt_update();
 	alt_set_current_to_zero();
-	save_ground_alt(alt_get_zero());
 	
 	delay_ms(20);
 	
@@ -572,7 +571,7 @@ void initialize()
 	wdt_reset();
 	if (read_state() != UNARMED)
 	{
-		printf("LAST STATE NOT UNARMED %u\n");
+		printf("LAST STATE NOT UNARMED %u\n",read_state());
 		uint32_t resetCheckStart = timekeeper_get_millis();
 		while(timekeeper_get_millis() < resetCheckStart + 5000)
 		{
@@ -590,6 +589,7 @@ void initialize()
 		{
 			printf("UNABLE TO INITIALIZE GPS\nCANNOT DETERMINE PREVIOUS STATE\n");
 			toStateUnarmed();
+			save_ground_alt(alt_get_zero());
 		}
 		else if((uint32_t) gps_get_time() < read_utc()+RESET_TIMEOUT)
 		{
@@ -597,6 +597,7 @@ void initialize()
 			uint32_t diffMills = ((uint32_t)gps_get_time() - read_utc())*1000;
 			timekeeper_set_millis(read_time()*1000 + diffMills);
 			packets = read_packets();
+			printf("ga %f\n",read_ground_alt());
 			alt_set_zero(read_ground_alt());
 			uint16_t newState = read_state();
 			printf("ADVANCING TO STATE %s\n",stateNames[newState]);
@@ -606,12 +607,14 @@ void initialize()
 		{
 			printf("LAST STATE OUTSIDE TIMEOUT, IGNORING\n");
 			toStateUnarmed();
+			save_ground_alt(alt_get_zero());
 		}
 	}
 	else
 	{
 		printf("PREVIOUS STATE NOT DETECTED\n");
 		toStateUnarmed();
+		save_ground_alt(alt_get_zero());
 	}
 	
 }
