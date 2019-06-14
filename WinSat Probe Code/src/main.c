@@ -571,7 +571,7 @@ void initialize()
 	wdt_reset();
 	if (read_state() != UNARMED)
 	{
-		printf("LAST STATE NOT UNARMED %u\n",read_state());
+		printf("LAST STATE NOT UNARMED\n");
 		uint32_t resetCheckStart = timekeeper_get_millis();
 		while(timekeeper_get_millis() < resetCheckStart + 5000)
 		{
@@ -597,7 +597,6 @@ void initialize()
 			uint32_t diffMills = ((uint32_t)gps_get_time() - read_utc())*1000;
 			timekeeper_set_millis(read_time()*1000 + diffMills);
 			packets = read_packets();
-			printf("ga %f\n",read_ground_alt());
 			alt_set_zero(read_ground_alt());
 			uint16_t newState = read_state();
 			printf("ADVANCING TO STATE %s\n",stateNames[newState]);
