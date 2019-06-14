@@ -531,21 +531,22 @@ void initialize()
 
 	wdt_reset();
 
-	imu_init();
-	
-	printf("IMU INIT\n");
-	log_printf("IMU INIT\n");
-
-	wdt_reset();
-
 	alt_init();
 	
 	printf("ALTIMETER INIT\n");
 	log_printf("ALTIMETER INIT\n");
 	
+	wdt_reset();
+
+	imu_init();
+	
+	printf("IMU INIT\n");
+	log_printf("IMU INIT\n");
+	
 	delay_ms(250); //Wait for altitude data before setting zero
 	alt_update();
 	alt_set_current_to_zero();
+	save_ground_alt(alt_get_zero());
 	
 	delay_ms(20);
 	
