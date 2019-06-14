@@ -28,15 +28,15 @@
 
 void gps_init(double);
 
-void gps_update();
+void gps_update(void);
 
-double gps_get_longitude();
-double gps_get_latitude();
-double gps_get_altitude();
-double gps_get_time();
-uint16_t gps_get_sats();
+double gps_get_longitude(void);
+double gps_get_latitude(void);
+double gps_get_altitude(void);
+double gps_get_time(void);
+uint16_t gps_get_sats(void);
 
-void gps_zero_current_alt();
+void gps_zero_current_alt(void);
 
 
 

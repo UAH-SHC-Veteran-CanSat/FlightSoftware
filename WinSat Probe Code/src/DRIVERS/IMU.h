@@ -38,6 +38,7 @@ uint8_t imu_gyro_cal(void);
 uint8_t imu_mag_cal(void);
 uint8_t imu_sys_cal(void);
 
+uint32_t imu_uncalib_count(void);
 
 
 #endif /* IMU_H_ */

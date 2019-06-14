@@ -32,7 +32,7 @@ uint32_t lastGpsMillis = 0;
 uint16_t teamID = 2591;
 double maxAltitude = 0;
 	
-uint16_t servoManualPos = 500;
+uint16_t servoManualPos = 1001;
 	
 uint32_t packets = 0;
 	
@@ -49,17 +49,17 @@ const char* stateNames[6];
 uint32_t stateMinTimes[6] = {1000, 1000, 2000, 2000, 90000, 1000}; // Minimum time in milliseconds to spend in each state
 uint32_t stateSwitchMillis = 0;
 
-void initialize();
-void doCommands();
+void initialize(void);
+void doCommands(void);
 
 // Put state transition behavior in these functions
 void goToState(uint16_t newState);
-void toStateUnarmed(); // UNARMED
-void toStatePrelaunch(); // PRELAUNCH
-void toStateAscent(); // ASCENT
-void toStateDescent(); // DESCENT
-void toStateActive(); // ACTIVE
-void toStateLanded(); // LANDED
+void toStateUnarmed(void); // UNARMED
+void toStatePrelaunch(void); // PRELAUNCH
+void toStateAscent(void); // ASCENT
+void toStateDescent(void); // DESCENT
+void toStateActive(void); // ACTIVE
+void toStateLanded(void); // LANDED
 
 void goToState(uint16_t newState)
 {
@@ -204,6 +204,16 @@ int main (void)
 		}
 		
 		imu_update();
+		
+		if(imu_uncalib_count() > 20)
+		{
+			printf("IMU Requires MCU reset!\nSOFT RESETTING");
+			log_printf("IMU Requires MCU reset!\nSOFT RESETTING");
+			wdt_set_timeout_period(WDT_TIMEOUT_PERIOD_1KCLK);
+			wdt_enable(); //Enables the watchdog timer if it wasn't already
+			while(1); // Waits until the watchdog timer resets the MCU
+		}
+		
 		alt_update();
 		
 		if(pidOn && timekeeper_get_millis() > pidOnTime)
@@ -218,6 +228,11 @@ int main (void)
 			
 			fin1_set_pos(pid_output());
 			fin2_set_pos(pid_output());
+		}
+		else if(servoManualPos > 1000)
+		{
+			fin1_disable();
+			fin2_disable();
 		}
 		else
 		{
@@ -567,11 +582,13 @@ void initialize()
 	log_printf("\nINIT COMPLETE!\n\n\n");
 	
 	printf("CHECKING RESET STATUS\n");
+	log_printf("CHECKING RESET STATUS\n");
 	
 	wdt_reset();
 	if (read_state() != UNARMED)
 	{
 		printf("LAST STATE NOT UNARMED\n");
+		log_printf("LAST STATE NOT UNARMED\n");
 		uint32_t resetCheckStart = timekeeper_get_millis();
 		while(timekeeper_get_millis() < resetCheckStart + 5000)
 		{
@@ -588,23 +605,27 @@ void initialize()
 		if(gps_get_time() == 0)
 		{
 			printf("UNABLE TO INITIALIZE GPS\nCANNOT DETERMINE PREVIOUS STATE\n");
+			log_printf("UNABLE TO INITIALIZE GPS\nCANNOT DETERMINE PREVIOUS STATE\n");
 			toStateUnarmed();
 			save_ground_alt(alt_get_zero());
 		}
 		else if((uint32_t) gps_get_time() < read_utc()+RESET_TIMEOUT)
 		{
 			printf("LAST STATE INSIDE TIMEOUT!\nRESUMING\n!");
+			log_printf("LAST STATE INSIDE TIMEOUT!\nRESUMING\n!");
 			uint32_t diffMills = ((uint32_t)gps_get_time() - read_utc())*1000;
 			timekeeper_set_millis(read_time()*1000 + diffMills);
 			packets = read_packets();
 			alt_set_zero(read_ground_alt());
 			uint16_t newState = read_state();
 			printf("ADVANCING TO STATE %s\n",stateNames[newState]);
+			log_printf("ADVANCING TO STATE %s\n",stateNames[newState]);
 			goToState(newState);
 		}
 		else
 		{
 			printf("LAST STATE OUTSIDE TIMEOUT, IGNORING\n");
+			log_printf("LAST STATE OUTSIDE TIMEOUT, IGNORING\n");
 			toStateUnarmed();
 			save_ground_alt(alt_get_zero());
 		}
@@ -612,6 +633,7 @@ void initialize()
 	else
 	{
 		printf("PREVIOUS STATE NOT DETECTED\n");
+		log_printf("PREVIOUS STATE NOT DETECTED\n");
 		toStateUnarmed();
 		save_ground_alt(alt_get_zero());
 	}

@@ -20,6 +20,8 @@ uint8_t gyro_calib;
 uint8_t mag_calib;
 uint8_t sys_calib;
 
+uint16_t uncalib_count = 0;
+
 void imu_init()
 {
 	twi_options_t m_options = {
@@ -69,6 +71,7 @@ void imu_update()
 	if (accel_calib == 0 && mag_calib == 0 && gyro_calib == 0 && sys_calib == 0)
 	{
 		//printf("IMU Completely uncalibrated\n");
+		uncalib_count++;
 	}
 }
 
@@ -124,6 +127,11 @@ uint8_t imu_mag_cal()
 uint8_t imu_sys_cal()
 {
 	return sys_calib;
+}
+
+uint32_t imu_uncalib_count()
+{
+	return uncalib_count;
 }
 
 
