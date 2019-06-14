@@ -123,7 +123,7 @@ float adc_get_temperature(void){
 	r_inf = 0.01610568;
 	
 	float voltage = adc_get_therm_voltage();	
-	float resistance = (-1 + 3.3/voltage)*4700;
+	float resistance = (-1 + 3.3/voltage)*3170;
 	float temperature = B/log(resistance/r_inf)- 273.15;
 	return temperature;	
 #endif
